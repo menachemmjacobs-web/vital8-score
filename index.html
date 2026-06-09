@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Vital 8 Health Score</title>
+    <link rel="stylesheet" href="./styles.css?v=13">
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="score-hero" aria-labelledby="score-title">
+        <div class="score-gauge">
+          <div>
+            <p class="eyebrow">87 days of data</p>
+            <h1 id="score-title">Vital 8 Health Score</h1>
+          </div>
+
+          <div class="gauge-wrap" aria-label="Vital 8 score 64 out of 100">
+            <div class="gauge-bars" id="gaugeBars"></div>
+            <div class="needle"></div>
+            <div class="needle-pin"></div>
+            <strong id="overallScoreText">64</strong>
+            <span id="overallScoreLabel">Good</span>
+          </div>
+
+          <div class="range-tabs" aria-label="Score time range">
+            <button>Day</button>
+            <button>Week</button>
+            <button>1 Month</button>
+            <button class="active">3 Month</button>
+          </div>
+
+          <div class="sync-line">
+            <span>-16 pts</span>
+            <span>62 today</span>
+            <span>4 devices</span>
+            <span>Synced just now</span>
+          </div>
+        </div>
+
+        <div class="score-chart" aria-label="Vital 8 score trend">
+          <div class="hero-actions">
+            <button class="icon-button" aria-label="Previous range">&lt;</button>
+            <span>Scroll to explore</span>
+            <button class="icon-button" aria-label="Next range">&gt;</button>
+          </div>
+          <svg viewBox="0 0 760 260" role="img" aria-label="Score trend line">
+            <defs>
+              <linearGradient id="orangeFade" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stop-color="#f47a2c" stop-opacity=".22"></stop>
+                <stop offset="100%" stop-color="#f47a2c" stop-opacity="0"></stop>
+              </linearGradient>
+            </defs>
+            <g class="grid">
+              <line x1="0" x2="760" y1="35" y2="35"></line>
+              <line x1="0" x2="760" y1="95" y2="95"></line>
+              <line x1="0" x2="760" y1="155" y2="155"></line>
+              <line x1="0" x2="760" y1="215" y2="215"></line>
+            </g>
+            <path class="area" d="M0 110 L70 110 L140 110 L210 110 L280 110 L350 110 L420 110 L470 126 L520 126 L570 110 L640 110 L710 110 L760 110 L760 240 L0 240 Z"></path>
+            <polyline class="trend" points="0,110 70,110 140,110 210,110 280,110 350,110 420,110 470,126 520,126 570,110 640,110 710,110 760,110"></polyline>
+            <g class="points">
+              <circle cx="34" cy="110" r="7"></circle>
+              <circle cx="84" cy="110" r="7"></circle>
+              <circle cx="134" cy="110" r="7"></circle>
+              <circle cx="184" cy="110" r="7"></circle>
+              <circle cx="234" cy="110" r="7"></circle>
+              <circle cx="284" cy="110" r="7"></circle>
+              <circle cx="334" cy="110" r="7"></circle>
+              <circle cx="384" cy="110" r="7"></circle>
+              <circle cx="434" cy="126" r="7"></circle>
+              <circle cx="484" cy="126" r="7"></circle>
+              <circle cx="534" cy="110" r="7"></circle>
+              <circle cx="584" cy="110" r="7"></circle>
+              <circle cx="634" cy="110" r="7"></circle>
+              <circle cx="684" cy="110" r="7"></circle>
+              <circle cx="734" cy="110" r="7"></circle>
+            </g>
+            <text x="210" y="252">Feb 18</text>
+            <text x="715" y="252">Mar 1</text>
+          </svg>
+        </div>
+      </section>
+
+      <section class="split-card" aria-label="Score categories">
+        <button class="score-pill active" data-filter="cardiovascular">
+          <span class="pill-icon heart-icon"></span>
+          <span>Cardiovascular</span>
+          <strong>73</strong>
+        </button>
+        <button class="score-pill" data-filter="metabolic">
+          <span class="pill-icon metabolic-icon"></span>
+          <span>Metabolic</span>
+          <strong>50</strong>
+        </button>
+      </section>
+
+      <section class="dashboard-grid">
+        <div class="metrics-panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Classic AHA criteria</p>
+              <h2>Life's Essential 8</h2>
+            </div>
+            <div class="compact-tabs">
+              <button class="active">Scores</button>
+              <button>Markers</button>
+              <button>Devices</button>
+            </div>
+          </div>
+
+          <div class="summary-strip">
+            <div><strong>8</strong><span>Total</span></div>
+            <div><strong>4</strong><span>Cardiovascular</span></div>
+            <div><strong>4</strong><span>Metabolic</span></div>
+            <div><strong>2</strong><span>Needs focus</span></div>
+          </div>
+
+          <div class="metric-table">
+            <div class="table-head">
+              <span>Name</span>
+              <span>Score</span>
+              <span>History</span>
+            </div>
+            <div id="metricRows"></div>
+          </div>
+        </div>
+
+      </section>
+
+      <section class="tasks-card task-strip">
+        <h2>Tasks</h2>
+        <div class="task-row">
+          <span class="task-icon"></span>
+          <div>
+            <strong>Weekly check-in</strong>
+            <div class="progress"><span></span></div>
+          </div>
+          <em>2/8</em>
+        </div>
+        <label class="check-row">
+          <input type="checkbox">
+          <span>Diet Assessment</span>
+          <em>To do</em>
+        </label>
+        <label class="check-row">
+          <input type="checkbox" checked>
+          <span>Sleep and exercise</span>
+          <em>Done</em>
+        </label>
+      </section>
+
+      <section class="workspace-grid" aria-label="Functional workspace">
+        <div class="survey-panel">
+          <div class="panel-head compact">
+            <div>
+              <p class="eyebrow">First generation</p>
+              <h2>Weekly Check-In</h2>
+            </div>
+            <button class="primary-action" id="saveSurvey">Save week</button>
+          </div>
+
+          <form class="survey-form" id="surveyForm">
+            <label>
+              <span>Moderate exercise minutes</span>
+              <input name="activity" type="number" min="0" max="1000" value="120">
+            </label>
+            <label>
+              <span>Average sleep hours</span>
+              <input name="sleep" type="number" min="0" max="16" step="0.1" value="6.8">
+            </label>
+            <label>
+              <span>Diet quality</span>
+              <select name="diet">
+                <option value="25">Needs assessment</option>
+                <option value="50">Mixed pattern</option>
+                <option value="80">Mostly Mediterranean/DASH</option>
+                <option value="100">High adherence</option>
+              </select>
+            </label>
+            <label>
+              <span>Nicotine exposure</span>
+              <select name="nicotine">
+                <option value="100">None / never</option>
+                <option value="75">Quit 5+ years ago</option>
+                <option value="50">Quit 1-5 years ago</option>
+                <option value="25">Recent quit or nicotine device</option>
+                <option value="0">Current inhaled nicotine</option>
+              </select>
+            </label>
+            <label>
+              <span>Systolic BP</span>
+              <input name="systolic" type="number" min="70" max="240" value="131">
+            </label>
+            <label>
+              <span>Diastolic BP</span>
+              <input name="diastolic" type="number" min="40" max="140" value="87">
+            </label>
+            <label>
+              <span>BMI</span>
+              <input name="bmi" type="number" min="10" max="70" step="0.1" value="28.9">
+            </label>
+            <label>
+              <span>HbA1c</span>
+              <input name="a1c" type="number" min="3.5" max="15" step="0.1" value="5.9">
+            </label>
+            <label>
+              <span>Non-HDL cholesterol</span>
+              <input name="nonHdl" type="number" min="40" max="400" value="121">
+            </label>
+          </form>
+        </div>
+
+        <div class="lab-panel">
+          <div class="panel-head compact">
+            <div>
+              <p class="eyebrow">Lab intake</p>
+              <h2>Upload or Paste Labs</h2>
+            </div>
+          </div>
+          <label class="file-drop">
+            <input id="labUpload" type="file" accept=".pdf,.png,.jpg,.jpeg,.txt,.csv">
+            <span>Choose lab file</span>
+            <em id="labFileName">PDF, image, CSV, or text</em>
+          </label>
+          <textarea id="labNotes" rows="7" placeholder="Paste key lab values here, e.g. ApoB 74 mg/dL, hs-CRP 2.4 mg/L, Lp(a) 43 mg/dL, LDL-C 118 mg/dL."></textarea>
+          <div class="lab-insights" id="labInsights">
+            <strong>Waiting for labs</strong>
+            <span>Add values to surface prevention markers for the AI coach.</span>
+          </div>
+        </div>
+
+        <div class="coach-panel">
+          <div class="panel-head compact">
+            <div>
+              <p class="eyebrow">AI layer</p>
+              <h2>Prevention Coach</h2>
+            </div>
+          </div>
+          <div class="coach-thread" id="coachThread">
+            <div class="coach-message">
+              <strong>Coach</strong>
+              <p>I can help organize Life's Essential 8, labs, and prevention questions into priorities. This prototype uses local rules; the production version can connect to an LLM with a clinical knowledge base.</p>
+            </div>
+          </div>
+          <form class="coach-input" id="coachForm">
+            <input id="coachQuestion" type="text" placeholder="Ask about sleep, ApoB, hs-CRP, GLP-1s, statins, or next best steps">
+            <button class="primary-action" type="submit">Ask</button>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <div class="modal-backdrop" id="modalBackdrop" hidden>
+      <section class="metric-modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <button class="close-button" id="closeModal" aria-label="Close detail">x</button>
+        <div class="modal-head">
+          <span class="modal-icon"></span>
+          <div>
+            <h2 id="modalTitle">Blood Pressure</h2>
+            <p id="modalSubtitle">Last 30 days</p>
+          </div>
+        </div>
+        <div class="modal-tabs">
+          <button>Day</button>
+          <button class="active">Week</button>
+          <button>Month</button>
+          <button>Year</button>
+        </div>
+        <svg class="detail-chart" viewBox="0 0 720 300" role="img" aria-label="Metric trend">
+          <g class="detail-grid">
+            <line x1="70" x2="700" y1="40" y2="40"></line>
+            <line x1="70" x2="700" y1="90" y2="90"></line>
+            <line x1="70" x2="700" y1="140" y2="140"></line>
+            <line x1="70" x2="700" y1="190" y2="190"></line>
+            <line x1="70" x2="700" y1="240" y2="240"></line>
+          </g>
+          <text x="15" y="95">160</text>
+          <text x="15" y="145">120</text>
+          <text x="15" y="195">80</text>
+          <text x="15" y="245">40</text>
+          <path class="detail-fill" d="M70 126 L170 96 L270 150 L390 62 L510 78 L620 132 L700 100 L700 240 L70 240 Z"></path>
+          <polyline class="detail-line" points="70,126 170,96 270,150 390,62 510,78 620,132 700,100"></polyline>
+          <polyline class="detail-line muted" points="70,180 170,174 270,190 390,205 510,150 620,182 700,162"></polyline>
+          <g class="detail-points">
+            <circle cx="70" cy="126" r="8"></circle>
+            <circle cx="170" cy="96" r="8"></circle>
+            <circle cx="270" cy="150" r="8"></circle>
+            <circle cx="390" cy="62" r="8"></circle>
+            <circle cx="510" cy="78" r="8"></circle>
+            <circle cx="620" cy="132" r="8"></circle>
+            <circle cx="700" cy="100" r="8"></circle>
+          </g>
+        </svg>
+        <div class="modal-stats" id="modalStats"></div>
+      </section>
+    </div>
+
+    <script src="./app.js?v=13"></script>
+  </body>
+</html>
