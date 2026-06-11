@@ -58,7 +58,7 @@ def score_diet(
     grain_points = {"0": 0, "1": 10, "2+": 20}[whole_grains]
     drink_points = {"0": 15, "1-3": 10, "4-7": 5, "7+": 0}[sugary_drinks]
     processed_points = {"0-1": 15, "2-3": 10, "4-6": 5, "7+": 0}[processed_food]
-    protein_points = {"0-1": 0, "2-3": 5, "4+": 15}[healthy_proteins]
+    protein_points = {"0-1": 0, "2-3": 5, "4-6": 12, "daily": 15, "4+": 15}[healthy_proteins]
     score = min(100, fruit_points + grain_points + drink_points + processed_points + protein_points)
     return _result(
         score,

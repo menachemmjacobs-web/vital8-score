@@ -53,7 +53,7 @@ EVIDENCE_NOTE = (
 )
 
 DOMAIN_COPY = {
-    "Daily fuel": "LE8 includes diet because your usual food pattern affects cholesterol, blood pressure, blood sugar, weight, and inflammation. Estimate your average pattern over the past month; this is not a test of a perfect day.",
+    "Daily fuel": "LE8 includes diet because your usual food pattern affects cholesterol, blood pressure, blood sugar, weight, and inflammation. Think about your usual eating pattern over the last few months. There are no perfect answers - we're looking for your typical routine.",
     "Movement": "LE8 gives credit for weekly movement because activity improves blood pressure, insulin sensitivity, sleep, mood, and long-term heart health.",
     "Nicotine and smoke exposure": "LE8 includes nicotine because smoking, vaping, and secondhand smoke can affect blood vessels, blood pressure, clotting risk, and long-term heart health.",
     "Sleep rhythm": "LE8 includes sleep because too little or too much sleep can track with blood pressure, glucose control, appetite, and stress.",
@@ -64,7 +64,7 @@ DOMAIN_COPY = {
 }
 
 DOMAIN_MEANINGS = {
-    "Daily fuel": "Your estimated LE8 diet score reflects your usual pattern over the past month, especially plants, whole grains, sugary drinks, processed meals, and heart-friendly proteins.",
+    "Daily fuel": "Your estimated LE8 diet score reflects your usual eating routine, especially plants, whole grains, sugary drinks, processed meals, and heart-healthy proteins.",
     "Movement": "More weekly movement is one of the fastest ways to improve several heart health signals at once.",
     "Nicotine": "Avoiding nicotine and smoke exposure protects blood vessels and lowers cardiovascular risk.",
     "Sleep rhythm": "Consistent sleep duration supports blood pressure, glucose control, appetite, and recovery.",

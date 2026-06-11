@@ -89,6 +89,9 @@ DEFAULTS = {
 for key, value in DEFAULTS.items():
     st.session_state.setdefault(key, value)
 
+if st.session_state.healthy_proteins == "4+":
+    st.session_state.healthy_proteins = "daily"
+
 
 def inject_css() -> None:
     st.markdown(
@@ -354,35 +357,35 @@ with st.container(border=True):
     c1, c2 = st.columns(2)
     with c1:
         st.selectbox(
-            "Over the past month, on average, how many servings of fruits or vegetables did you eat per day?",
+            "On a typical day, how many servings of fruits and vegetables do you eat?",
             ["0", "1-2", "3-4", "5+"],
             key="fruit_veg",
             help="One serving is about a handful, a cup of salad, or one piece of fruit. Estimate your usual day, not your best day.",
         )
         st.selectbox(
-            "Over the past month, on average, how many servings of whole grains did you eat per day?",
+            "On a typical day, how many servings of whole grains do you eat?",
             ["0", "1", "2+"],
             key="whole_grains",
             help="Examples include oatmeal, whole wheat bread, brown rice, quinoa, barley, or high-fiber cereal.",
         )
         st.selectbox(
-            "Over the past month, about how many sugary drinks did you usually have per week?",
+            "In a typical week, how many sugary drinks do you have?",
             ["0", "1-3", "4-7", "7+"],
             key="sugary_drinks",
             help="Include soda, sweet tea, juice drinks, energy drinks, and sweetened coffee drinks.",
         )
     with c2:
         st.selectbox(
-            "Over the past month, how often did you eat fast food, fried foods, packaged snacks, or heavily processed meals?",
+            "In a typical week, how many meals come from fast food, fried food, or heavily processed foods?",
             ["0-1", "2-3", "4-6", "7+"],
             key="processed_food",
             help="Estimate meals or snack occasions per week.",
         )
         st.selectbox(
-            "Over the past month, how often did you eat heart-friendly proteins?",
-            ["0-1", "2-3", "4+"],
+            "In a typical week, how often do you eat fish, beans, lentils, nuts, or other heart-healthy protein sources?",
+            ["0-1", "2-3", "4-6", "daily"],
             key="healthy_proteins",
-            help="Examples: fish, beans, lentils, tofu, nuts, seeds, chicken, turkey, or Greek yogurt. Estimate times per week.",
+            help="Examples: fish, beans, lentils, tofu, nuts, seeds, chicken, turkey, or Greek yogurt.",
         )
 
 with st.container(border=True):
