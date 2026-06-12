@@ -705,11 +705,11 @@ if st.session_state.advanced_enabled:
     for step in biomarker_next_steps(adjustment):
         st.write(f"- {step}")
 
-st.subheader("Follow the science behind Vital8")
+st.subheader("Learn more about the Vital8 project")
 st.write(
-    "We are building a platform for science-based longevity and preventive cardiology. "
-    "Join the free Vital8 newsletter for clear updates on cardiometabolic health, wearable data, biomarkers, and practical prevention. "
-    "Always free. No gatekeeping."
+    "For more detail on the methodology, scientific references, white paper development, and future updates, "
+    "visit the Vital8 Substack. It is where we will share the thinking behind the score, what we are learning, "
+    "and how this project is evolving."
 )
-st.caption("Newsletter signup happens on Substack. Vital8 does not collect your email in this app.")
-st.link_button("Join the free newsletter", newsletter_url())
+st.caption("Substack handles any newsletter signup. Vital8 does not collect your email in this app.")
+st.link_button("Learn more on Substack", newsletter_url())
