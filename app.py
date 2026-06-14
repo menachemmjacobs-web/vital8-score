@@ -33,8 +33,7 @@ DISCLAIMER = _copy_module.DISCLAIMER
 DOMAIN_COPY = _copy_module.DOMAIN_COPY
 DOMAIN_MEANINGS = _copy_module.DOMAIN_MEANINGS
 EVIDENCE_NOTE = _copy_module.EVIDENCE_NOTE
-LE8_INTRO = _copy_module.LE8_INTRO
-LANDING_SUBTITLE = _copy_module.LANDING_SUBTITLE
+LANDING_PARAGRAPHS = _copy_module.LANDING_PARAGRAPHS
 LANDING_TITLE = _copy_module.LANDING_TITLE
 WHAT_THIS_MEASURES = _copy_module.WHAT_THIS_MEASURES
 
@@ -52,6 +51,9 @@ DOMAIN_ORDER = [
     "Blood sugar",
     "Blood pressure",
 ]
+
+AUTHOR_PHOTO = Path("assets/menachem-jacobs-photo.jpg")
+AUTHOR_EMAIL = "menachem.m.jacobs@gmail.com"
 
 
 DEFAULTS = {
@@ -138,6 +140,13 @@ def inject_css() -> None:
         .equal-card { min-height: 190px; }
         .plan-card { min-height: 210px; }
         .metric-card { min-height: 185px; }
+        .author-note {
+          border-radius: 20px;
+          padding: 22px;
+          background: #ffffff;
+          border: 1px solid rgba(17, 36, 58, .08);
+          box-shadow: 0 12px 30px rgba(17, 36, 58, .06);
+        }
         .small-label {
           margin: 0 0 8px;
           color: var(--teal);
@@ -307,13 +316,17 @@ def newsletter_url() -> str:
 
 inject_css()
 
+landing_body = "\n".join(
+    f"<p class='muted' style='font-size:1.05rem; max-width:900px;'>{paragraph}</p>"
+    for paragraph in LANDING_PARAGRAPHS
+)
+
 st.markdown(
     f"""
     <section class='hero'>
       <p class='small-label'>Life's Essential 8 assessment</p>
       <h1>{LANDING_TITLE}</h1>
-      <p class='muted' style='font-size:1.16rem; max-width:840px;'>{LANDING_SUBTITLE}</p>
-      <p class='muted' style='max-width:880px;'>{LE8_INTRO}</p>
+      {landing_body}
     </section>
     """,
     unsafe_allow_html=True,
@@ -713,3 +726,17 @@ st.write(
 )
 st.caption("Substack handles any newsletter signup. Vital8 does not collect your email in this app.")
 st.link_button("Learn more on Substack", newsletter_url())
+
+st.write("")
+with st.container(border=True):
+    image_col, text_col = st.columns([1, 5])
+    with image_col:
+        if AUTHOR_PHOTO.exists():
+            st.image(str(AUTHOR_PHOTO), width=110)
+    with text_col:
+        st.markdown("**Created by Menachem Jacobs, MD, MPH**")
+        st.caption("Internal Medicine resident and preventive cardiology researcher")
+        st.markdown(
+            f"Have feedback, questions, or ideas for improving Vital8? "
+            f"[Reach out by email](mailto:{AUTHOR_EMAIL})."
+        )

@@ -23,10 +23,31 @@ Error = _stdlib_copy.Error
 
 LANDING_TITLE = "Know Your Heart Health Score"
 
-LANDING_SUBTITLE = (
-    "A free, science-based cardiovascular health score built from the American Heart Association's "
-    "Life's Essential 8 framework. No supplements to sell. No paywall. No mystery score."
-)
+LANDING_PARAGRAPHS = [
+    (
+        "I'm Menachem Jacobs, MD, MPH, an Internal Medicine resident and preventive cardiology researcher. "
+        "I created Vital8 because one of the biggest challenges in medicine is not discovering what improves health - "
+        "we often already know that. The challenge is helping people understand where they stand and what to do next."
+    ),
+    (
+        "Vital8 is a free cardiovascular health assessment built from the American Heart Association's Life's Essential 8 "
+        "framework, one of the most extensively studied measures of cardiovascular health. Decades of research involving "
+        "millions of individuals have shown that better cardiovascular health is associated with longer life, fewer heart "
+        "attacks and strokes, lower rates of diabetes and dementia, and more years lived free from chronic disease."
+    ),
+    (
+        "A lot of modern health products make longevity feel expensive, proprietary, and confusing. Vital8 starts from a "
+        "different belief: some of the most powerful prevention tools should be understandable, evidence-based, and freely available."
+    ),
+    (
+        "This assessment translates prevention science into a simple, actionable score built around the habits and health factors "
+        "that matter most: nutrition, physical activity, sleep, nicotine exposure, body weight, cholesterol, blood sugar, and blood pressure. "
+        "The goal is not perfection. The goal is identifying the next change most likely to improve long-term health."
+    ),
+    "No supplements to sell. No paywall. No mystery algorithm. Just the best available science, presented in a way that helps people take action.",
+]
+
+LANDING_SUBTITLE = LANDING_PARAGRAPHS[0]
 
 DISCLAIMER = (
     "This tool is for education only and does not diagnose, treat, or replace care from your clinician. "
@@ -40,9 +61,7 @@ WHAT_THIS_MEASURES = (
 )
 
 LE8_INTRO = (
-    "A lot of modern health products make longevity feel expensive, proprietary, and confusing. Vital8 starts from "
-    "the opposite belief: some of the most powerful prevention tools should be understandable and free. This score "
-    "was built around evidence doctors already use with the patients they care for: the habits and measurements that "
+    "Vital8 translates prevention science into a simple, actionable score built around the habits and measurements that "
     "most consistently track with long-term heart, metabolic, and brain health."
 )
 
