@@ -34,7 +34,7 @@ For local testing, copy `.streamlit/secrets.toml.example` to `.streamlit/secrets
 - The final score is the unweighted average of available component scores.
 - Score ranges follow the LE8 framing used in the app: low below 50, moderate 50-79, high 80-100.
 - If lipids, glucose, or blood pressure are missing, the app calculates a partial score.
-- The diet score is a simplified MVP estimate based on the user's average pattern over the past month. It is not the full AHA diet algorithm.
+- The diet score is an adapted consumer-facing estimate that uses eight LE8-aligned food-pattern questions. It is not the full AHA diet algorithm or a validated dietary recall.
 - The optional Vital8 Advanced layer keeps LE8 unchanged, then adds a conceptual hsCRP/Lp(a) "biological drag" estimate. hsCRP is treated as a potentially modifiable inflammatory signal; Lp(a) is treated as a largely genetic risk signal. This is an exploratory prototype, not a validated clinical calculator.
 - Newsletter signup is handled by Substack through an outbound link. This app does not store newsletter emails.
 

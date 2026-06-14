@@ -60,13 +60,19 @@ DEFAULTS = {
     "age": 45,
     "sex": "Female",
     "fruit_veg": "1-2",
-    "whole_grains": "1",
+    "whole_grains": "sometimes",
     "sugary_drinks": "1-3",
     "processed_food": "2-3",
-    "healthy_proteins": "2-3",
+    "healthy_proteins": "mixed",
+    "fish_seafood": "1",
+    "nuts_legumes": "few_weekly",
+    "sodium_foods": "sometimes",
     "moderate_minutes": 90,
     "vigorous_minutes": 0,
-    "nicotine_status": "none",
+    "nicotine_current_use": "none",
+    "nicotine_former_use": False,
+    "nicotine_quit_timing": "10_plus",
+    "secondhand_exposure": False,
     "sleep_hours": 7.0,
     "height_ft": 5,
     "height_in": 9,
@@ -91,8 +97,10 @@ DEFAULTS = {
 for key, value in DEFAULTS.items():
     st.session_state.setdefault(key, value)
 
-if st.session_state.healthy_proteins == "4+":
-    st.session_state.healthy_proteins = "daily"
+if st.session_state.whole_grains in {"0", "1", "2+"}:
+    st.session_state.whole_grains = DEFAULTS["whole_grains"]
+if st.session_state.healthy_proteins in {"0-1", "2-3", "4-6", "daily", "4+"}:
+    st.session_state.healthy_proteins = DEFAULTS["healthy_proteins"]
 
 
 def inject_css() -> None:
@@ -202,6 +210,9 @@ def collect_scores() -> tuple[dict, dict]:
         st.session_state.sugary_drinks,
         st.session_state.processed_food,
         st.session_state.healthy_proteins,
+        st.session_state.fish_seafood,
+        st.session_state.nuts_legumes,
+        st.session_state.sodium_foods,
     )
     activity = score_activity(st.session_state.moderate_minutes, st.session_state.vigorous_minutes)
     lipids = score_lipids(
@@ -217,7 +228,12 @@ def collect_scores() -> tuple[dict, dict]:
     components = {
         "Daily fuel": diet,
         "Movement": activity,
-        "Nicotine": score_nicotine(st.session_state.nicotine_status),
+        "Nicotine": score_nicotine(
+            st.session_state.nicotine_current_use,
+            st.session_state.nicotine_former_use,
+            st.session_state.nicotine_quit_timing,
+            st.session_state.secondhand_exposure,
+        ),
         "Sleep rhythm": score_sleep(st.session_state.sleep_hours),
         "Body size": score_bmi(bmi),
         "Cholesterol particles": lipids,
@@ -376,8 +392,14 @@ with st.container(border=True):
             help="One serving is about a handful, a cup of salad, or one piece of fruit. Estimate your usual day, not your best day.",
         )
         st.selectbox(
-            "On a typical day, how many servings of whole grains do you eat?",
-            ["0", "1", "2+"],
+            "How often do you choose whole-grain foods over white or refined grains?",
+            ["rarely", "sometimes", "most", "always"],
+            format_func=lambda value: {
+                "rarely": "Rarely or never",
+                "sometimes": "Sometimes, a few times a week",
+                "most": "Most of the time",
+                "always": "Almost always",
+            }[value],
             key="whole_grains",
             help="Examples include oatmeal, whole wheat bread, brown rice, quinoa, barley, or high-fiber cereal.",
         )
@@ -395,10 +417,49 @@ with st.container(border=True):
             help="Estimate meals or snack occasions per week.",
         )
         st.selectbox(
-            "In a typical week, how often do you eat fish, beans, lentils, nuts, or other heart-healthy protein sources?",
-            ["0-1", "2-3", "4-6", "daily"],
+            "Which best describes your usual protein sources?",
+            ["plant_fish", "mixed", "lean_meat", "red_processed"],
+            format_func=lambda value: {
+                "plant_fish": "Mostly plant-based proteins and/or fish",
+                "mixed": "Mix of plant-based foods, fish, poultry, and some red meat",
+                "lean_meat": "Mostly poultry or lean meat, limited red or processed meat",
+                "red_processed": "Mostly red or processed meat",
+            }[value],
             key="healthy_proteins",
-            help="Examples: fish, beans, lentils, tofu, nuts, seeds, chicken, turkey, or Greek yogurt.",
+            help="Examples of heart-healthy proteins include fish, beans, lentils, tofu, nuts, and seeds.",
+        )
+        st.selectbox(
+            "How often do you eat fish or seafood?",
+            ["2+", "1", "monthly", "rarely"],
+            format_func=lambda value: {
+                "2+": "2 or more times per week",
+                "1": "About once a week",
+                "monthly": "A few times a month",
+                "rarely": "Rarely or never",
+            }[value],
+            key="fish_seafood",
+        )
+        st.selectbox(
+            "How often do you eat nuts, seeds, beans, or lentils?",
+            ["most_days", "few_weekly", "weekly", "rarely"],
+            format_func=lambda value: {
+                "most_days": "Most days, 5+ times per week",
+                "few_weekly": "A few times a week",
+                "weekly": "About once a week",
+                "rarely": "Rarely or never",
+            }[value],
+            key="nuts_legumes",
+        )
+        st.selectbox(
+            "How often do you add salt at the table or eat high-sodium foods?",
+            ["rarely", "sometimes", "often"],
+            format_func=lambda value: {
+                "rarely": "Rarely - I actively limit salt",
+                "sometimes": "Sometimes",
+                "often": "Often - most meals are salty or restaurant-prepared",
+            }[value],
+            key="sodium_foods",
+            help="Examples include canned soups, chips, soy sauce, pickled foods, deli meats, and frequent restaurant meals.",
         )
 
 with st.container(border=True):
@@ -432,24 +493,42 @@ with c1:
         st.subheader("Nicotine and smoke exposure")
         st.caption(DOMAIN_COPY["Nicotine and smoke exposure"])
         st.selectbox(
-            "Which best describes your current nicotine or tobacco exposure?",
+            "Do you currently use tobacco or nicotine?",
             [
                 "none",
-                "quit_5_plus",
-                "quit_1_5",
-                "quit_under_1",
-                "current_nicotine",
-                "current_tobacco",
+                "combustible",
+                "ecig_smokeless",
+                "dual",
             ],
             format_func=lambda value: {
-                "none": "I do not currently use nicotine or tobacco",
-                "quit_5_plus": "I used to, but quit more than 5 years ago",
-                "quit_1_5": "I quit 1-5 years ago",
-                "quit_under_1": "I quit within the past year",
-                "current_nicotine": "I currently vape or use nicotine products",
-                "current_tobacco": "I currently smoke cigarettes, cigars, or other tobacco",
+                "none": "No current tobacco or nicotine",
+                "combustible": "Yes - cigarettes, cigars, or pipe tobacco",
+                "ecig_smokeless": "Yes - e-cigarettes, vapes, nicotine pouches, or smokeless tobacco",
+                "dual": "Yes - combustible tobacco plus another nicotine product",
             }[value],
-            key="nicotine_status",
+            key="nicotine_current_use",
+        )
+        if st.session_state.nicotine_current_use == "none":
+            st.checkbox(
+                "Have you ever been a regular user of cigarettes, vaping, or other tobacco/nicotine products?",
+                key="nicotine_former_use",
+            )
+            if st.session_state.nicotine_former_use:
+                st.selectbox(
+                    "How long ago did you quit?",
+                    ["under_1", "1_2", "3_4", "5_9", "10_plus"],
+                    format_func=lambda value: {
+                        "under_1": "Less than 1 year ago",
+                        "1_2": "1-2 years ago",
+                        "3_4": "3-4 years ago",
+                        "5_9": "5-9 years ago",
+                        "10_plus": "10 or more years ago",
+                    }[value],
+                    key="nicotine_quit_timing",
+                )
+        st.checkbox(
+            "In a typical week, am I regularly exposed to tobacco smoke or e-cigarette vapor at home, work, or in vehicles?",
+            key="secondhand_exposure",
         )
 with c2:
     with st.container(border=True):

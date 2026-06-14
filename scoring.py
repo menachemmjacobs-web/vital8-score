@@ -53,13 +53,19 @@ def score_diet(
     sugary_drinks: str,
     processed_food: str,
     healthy_proteins: str,
+    fish_seafood: str,
+    nuts_legumes: str,
+    sodium_foods: str,
 ) -> ScoreResult:
-    fruit_points = {"0": 0, "1-2": 15, "3-4": 25, "5+": 35}[fruit_veg]
-    grain_points = {"0": 0, "1": 10, "2+": 20}[whole_grains]
-    drink_points = {"0": 15, "1-3": 10, "4-7": 5, "7+": 0}[sugary_drinks]
-    processed_points = {"0-1": 15, "2-3": 10, "4-6": 5, "7+": 0}[processed_food]
-    protein_points = {"0-1": 0, "2-3": 5, "4-6": 12, "daily": 15, "4+": 15}[healthy_proteins]
-    score = min(100, fruit_points + grain_points + drink_points + processed_points + protein_points)
+    fruit_points = {"0": 0, "1-2": 5, "3-4": 15, "5+": 25}[fruit_veg]
+    grain_points = {"rarely": 0, "sometimes": 5, "most": 10, "always": 15}[whole_grains]
+    drink_points = {"0": 10, "1-3": 7, "4-7": 3, "7+": 0}[sugary_drinks]
+    processed_points = {"0-1": 10, "2-3": 7, "4-6": 3, "7+": 0}[processed_food]
+    protein_points = {"plant_fish": 15, "mixed": 10, "lean_meat": 5, "red_processed": 0}[healthy_proteins]
+    fish_points = {"2+": 10, "1": 7, "monthly": 3, "rarely": 0}[fish_seafood]
+    nuts_legumes_points = {"most_days": 10, "few_weekly": 7, "weekly": 3, "rarely": 0}[nuts_legumes]
+    sodium_points = {"rarely": 5, "sometimes": 3, "often": 0}[sodium_foods]
+    score = fruit_points + grain_points + drink_points + processed_points + protein_points + fish_points + nuts_legumes_points + sodium_points
     return _result(
         score,
         "Estimated diet score",
@@ -84,25 +90,36 @@ def score_activity(moderate_minutes: float, vigorous_minutes: float) -> ScoreRes
     return _result(score, f"{equivalent:.0f} moderate-equivalent min/week", "Regular movement improves blood pressure, insulin sensitivity, sleep, mood, and long-term heart health.", equivalent_minutes=equivalent)
 
 
-def score_nicotine(status: str) -> ScoreResult:
-    scores = {
-        "none": 100,
-        "quit_5_plus": 90,
-        "quit_1_5": 75,
-        "quit_under_1": 50,
-        "current_nicotine": 25,
-        "current_tobacco": 0,
-    }
-    labels = {
-        "none": "No current nicotine or tobacco",
-        "quit_5_plus": "Quit more than 5 years ago",
-        "quit_1_5": "Quit 1-5 years ago",
-        "quit_under_1": "Quit within the past year",
-        "current_nicotine": "Current vaping or nicotine product",
-        "current_tobacco": "Current combustible tobacco",
-    }
-    score = scores[status]
-    return _result(score, labels[status], "Avoiding nicotine exposure is one of the highest-impact cardiovascular choices.")
+def score_nicotine(current_use: str, former_use: bool, quit_timing: str | None, secondhand_exposure: bool) -> ScoreResult:
+    if current_use == "combustible":
+        base_score = 0
+        label = "Current combustible tobacco"
+    elif current_use == "ecig_smokeless":
+        base_score = 20
+        label = "Current non-combustible nicotine or tobacco"
+    elif current_use == "dual":
+        base_score = 0
+        label = "Current combustible plus other nicotine use"
+    elif former_use:
+        former_scores = {"under_1": 50, "1_2": 60, "3_4": 70, "5_9": 80, "10_plus": 90}
+        former_labels = {
+            "under_1": "Quit less than 1 year ago",
+            "1_2": "Quit 1-2 years ago",
+            "3_4": "Quit 3-4 years ago",
+            "5_9": "Quit 5-9 years ago",
+            "10_plus": "Quit 10 or more years ago",
+        }
+        timing = quit_timing or "under_1"
+        base_score = former_scores[timing]
+        label = former_labels[timing]
+    else:
+        base_score = 100
+        label = "Never or no regular nicotine/tobacco use"
+
+    score = max(0, base_score - 5) if secondhand_exposure else base_score
+    if secondhand_exposure:
+        label = f"{label}; regular secondhand exposure"
+    return _result(score, label, "Avoiding nicotine and secondhand exposure is one of the highest-impact cardiovascular choices.")
 
 
 def score_sleep(hours: float) -> ScoreResult:
