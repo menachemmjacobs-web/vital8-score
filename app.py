@@ -70,9 +70,9 @@ DEFAULTS = {
     "moderate_minutes": 90,
     "vigorous_minutes": 0,
     "nicotine_current_use": "none",
-    "nicotine_former_use": False,
+    "nicotine_former_status": "never",
     "nicotine_quit_timing": "10_plus",
-    "secondhand_exposure": False,
+    "secondhand_exposure_status": "no",
     "sleep_hours": 7.0,
     "height_ft": 5,
     "height_in": 9,
@@ -223,7 +223,7 @@ def legacy_nicotine_status() -> str:
         return "current_tobacco"
     if st.session_state.nicotine_current_use == "ecig_smokeless":
         return "current_nicotine"
-    if not st.session_state.nicotine_former_use:
+    if st.session_state.nicotine_former_status != "former":
         return "none"
     if st.session_state.nicotine_quit_timing in {"10_plus", "5_9"}:
         return "quit_5_plus"
@@ -236,9 +236,9 @@ def score_nicotine_with_fallback() -> dict:
     try:
         return score_nicotine(
             st.session_state.nicotine_current_use,
-            st.session_state.nicotine_former_use,
+            st.session_state.nicotine_former_status == "former",
             st.session_state.nicotine_quit_timing,
-            st.session_state.secondhand_exposure,
+            st.session_state.secondhand_exposure_status == "yes",
         )
     except TypeError:
         return score_nicotine(legacy_nicotine_status())
@@ -550,11 +550,16 @@ with c1:
             key="nicotine_current_use",
         )
         if st.session_state.nicotine_current_use == "none":
-            st.checkbox(
+            st.radio(
                 "Have you ever been a regular user of cigarettes, vaping, or other tobacco/nicotine products?",
-                key="nicotine_former_use",
+                ["never", "former"],
+                format_func=lambda value: {
+                    "never": "No, never a regular user",
+                    "former": "Yes, I used to, but I quit",
+                }[value],
+                key="nicotine_former_status",
             )
-            if st.session_state.nicotine_former_use:
+            if st.session_state.nicotine_former_status == "former":
                 st.selectbox(
                     "How long ago did you quit?",
                     ["under_1", "1_2", "3_4", "5_9", "10_plus"],
@@ -567,9 +572,12 @@ with c1:
                     }[value],
                     key="nicotine_quit_timing",
                 )
-        st.checkbox(
+        st.radio(
             "In a typical week, am I regularly exposed to tobacco smoke or e-cigarette vapor at home, work, or in vehicles?",
-            key="secondhand_exposure",
+            ["no", "yes"],
+            format_func=lambda value: {"no": "No", "yes": "Yes"}[value],
+            key="secondhand_exposure_status",
+            horizontal=True,
         )
 with c2:
     with st.container(border=True):
