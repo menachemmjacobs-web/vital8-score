@@ -25,7 +25,8 @@ LANDING_TITLE = "Know Your Heart Health Score"
 
 LANDING_PARAGRAPHS = [
     (
-        "I'm Menachem Jacobs, MD, MPH, an Internal Medicine resident and preventive cardiology researcher. "
+        "I'm Menachem Jacobs, MD, MPH, an Internal Medicine resident and "
+        "<a href='https://pubmed.ncbi.nlm.nih.gov/?term=menachem+jacobs&sort=date' target='_blank' rel='noopener noreferrer'>preventive cardiology researcher</a>. "
         "I created Vital8 because one of the biggest challenges in medicine is not discovering what improves health - "
         "we often already know that. The challenge is helping people understand where they stand and what to do next."
     ),

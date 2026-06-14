@@ -863,7 +863,11 @@ with st.container(border=True):
             st.image(str(AUTHOR_PHOTO), width=110)
     with text_col:
         st.markdown("**Created by Menachem Jacobs, MD, MPH**")
-        st.caption("Internal Medicine resident and preventive cardiology researcher")
+        st.markdown(
+            "Internal Medicine resident and "
+            "<a href='https://pubmed.ncbi.nlm.nih.gov/?term=menachem+jacobs&sort=date' target='_blank' rel='noopener noreferrer'>preventive cardiology researcher</a>",
+            unsafe_allow_html=True,
+        )
         st.markdown(
             f"Have feedback, questions, or ideas for improving Vital8? "
             f"[Reach out by email](mailto:{AUTHOR_EMAIL})."
