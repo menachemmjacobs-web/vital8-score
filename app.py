@@ -201,19 +201,65 @@ def optional_number(label: str, known: bool, min_value: float, max_value: float,
     return st.number_input(label, min_value=min_value, max_value=max_value, value=value, step=step, help=help_text)
 
 
+def legacy_diet_args() -> tuple[str, str, str, str, str]:
+    grain_map = {"rarely": "0", "sometimes": "1", "most": "2+", "always": "2+"}
+    protein_map = {
+        "plant_fish": "daily",
+        "mixed": "4-6",
+        "lean_meat": "2-3",
+        "red_processed": "0-1",
+    }
+    return (
+        st.session_state.fruit_veg,
+        grain_map.get(st.session_state.whole_grains, "1"),
+        st.session_state.sugary_drinks,
+        st.session_state.processed_food,
+        protein_map.get(st.session_state.healthy_proteins, "2-3"),
+    )
+
+
+def legacy_nicotine_status() -> str:
+    if st.session_state.nicotine_current_use in {"combustible", "dual"}:
+        return "current_tobacco"
+    if st.session_state.nicotine_current_use == "ecig_smokeless":
+        return "current_nicotine"
+    if not st.session_state.nicotine_former_use:
+        return "none"
+    if st.session_state.nicotine_quit_timing in {"10_plus", "5_9"}:
+        return "quit_5_plus"
+    if st.session_state.nicotine_quit_timing in {"3_4", "1_2"}:
+        return "quit_1_5"
+    return "quit_under_1"
+
+
+def score_nicotine_with_fallback() -> dict:
+    try:
+        return score_nicotine(
+            st.session_state.nicotine_current_use,
+            st.session_state.nicotine_former_use,
+            st.session_state.nicotine_quit_timing,
+            st.session_state.secondhand_exposure,
+        )
+    except TypeError:
+        return score_nicotine(legacy_nicotine_status())
+
+
 def collect_scores() -> tuple[dict, dict]:
     height_inches = st.session_state.height_ft * 12 + st.session_state.height_in
     bmi = calculate_bmi(height_inches, st.session_state.weight_lbs)
-    diet = score_diet(
-        st.session_state.fruit_veg,
-        st.session_state.whole_grains,
-        st.session_state.sugary_drinks,
-        st.session_state.processed_food,
-        st.session_state.healthy_proteins,
-        st.session_state.fish_seafood,
-        st.session_state.nuts_legumes,
-        st.session_state.sodium_foods,
-    )
+    try:
+        diet = score_diet(
+            st.session_state.fruit_veg,
+            st.session_state.whole_grains,
+            st.session_state.sugary_drinks,
+            st.session_state.processed_food,
+            st.session_state.healthy_proteins,
+            st.session_state.fish_seafood,
+            st.session_state.nuts_legumes,
+            st.session_state.sodium_foods,
+        )
+    except TypeError:
+        diet = score_diet(*legacy_diet_args())
     activity = score_activity(st.session_state.moderate_minutes, st.session_state.vigorous_minutes)
     lipids = score_lipids(
         st.session_state.total_chol if st.session_state.knows_lipids else None,
@@ -228,12 +274,7 @@ def collect_scores() -> tuple[dict, dict]:
     components = {
         "Daily fuel": diet,
         "Movement": activity,
-        "Nicotine": score_nicotine(
-            st.session_state.nicotine_current_use,
-            st.session_state.nicotine_former_use,
-            st.session_state.nicotine_quit_timing,
-            st.session_state.secondhand_exposure,
-        ),
+        "Nicotine": score_nicotine_with_fallback(),
         "Sleep rhythm": score_sleep(st.session_state.sleep_hours),
         "Body size": score_bmi(bmi),
         "Cholesterol particles": lipids,
