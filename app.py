@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import importlib.util
 from pathlib import Path
 
@@ -54,6 +55,7 @@ DOMAIN_ORDER = [
 
 AUTHOR_PHOTO = Path("assets/menachem-jacobs-photo.jpg")
 AUTHOR_EMAIL = "menachem.m.jacobs@gmail.com"
+AUTHOR_LINKEDIN = "https://www.linkedin.com/in/menachem-jacobs-b35222122/"
 
 
 DEFAULTS = {
@@ -369,6 +371,15 @@ def newsletter_url() -> str:
         return st.secrets.get("SUBSTACK_URL", "https://vital8.substack.com/")
     except Exception:
         return "https://vital8.substack.com/"
+
+
+def linked_author_photo() -> str:
+    encoded = base64.b64encode(AUTHOR_PHOTO.read_bytes()).decode("ascii")
+    return f"""
+    <a href="{AUTHOR_LINKEDIN}" target="_blank" rel="noopener noreferrer" aria-label="Menachem Jacobs LinkedIn profile">
+      <img src="data:image/jpeg;base64,{encoded}" alt="Menachem Jacobs" style="width:110px; border-radius:8px; display:block;" />
+    </a>
+    """
 
 
 inject_css()
@@ -860,7 +871,7 @@ with st.container(border=True):
     image_col, text_col = st.columns([1, 5])
     with image_col:
         if AUTHOR_PHOTO.exists():
-            st.image(str(AUTHOR_PHOTO), width=110)
+            st.markdown(linked_author_photo(), unsafe_allow_html=True)
     with text_col:
         st.markdown("**Created by Menachem Jacobs, MD, MPH**")
         st.markdown(
