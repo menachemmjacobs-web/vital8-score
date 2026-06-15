@@ -13,11 +13,16 @@ def get_top_opportunities(component_scores: dict[str, ScoreResult], n: int = 3) 
 def get_domain_recommendation(domain: str, score: int | None, raw_inputs: dict) -> str:
     if score is None:
         missing = {
+            "Daily fuel": "Answer the diet questions when you are ready. A rough usual pattern is enough; it does not need to be perfect.",
+            "Movement": "Enter your usual weekly activity minutes when you are ready.",
+            "Nicotine": "Answer the nicotine and secondhand exposure questions when you are ready.",
+            "Sleep rhythm": "Enter your usual sleep duration when you are ready.",
+            "Body size": "Enter height and weight if you want BMI included as one screening signal.",
             "Cholesterol particles": "Ask for a standard lipid panel. If you want a deeper prevention view, discuss ApoB and Lp(a) with your clinician.",
             "Blood sugar": "Ask about hemoglobin A1c or fasting glucose at your next routine lab check.",
             "Blood pressure": "Check home blood pressure twice in the morning and twice in the evening for 7 days, then average the readings.",
         }
-        return missing.get(domain, "This section was not entered yet. Add it when you have the number available.")
+        return missing.get(domain, "This section was not entered yet. Add it when you are ready.")
 
     if domain == "Daily fuel":
         return "Start by adding, not subtracting: one extra serving of fruit or vegetables daily, then replace one sugary drink or heavily processed snack."

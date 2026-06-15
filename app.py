@@ -59,8 +59,8 @@ AUTHOR_LINKEDIN = "https://www.linkedin.com/in/menachem-jacobs-b35222122/"
 
 
 DEFAULTS = {
-    "age": 45,
-    "sex": "Female",
+    "age": None,
+    "sex": None,
     "fruit_veg": None,
     "whole_grains": None,
     "sugary_drinks": None,
@@ -69,21 +69,21 @@ DEFAULTS = {
     "fish_seafood": None,
     "nuts_legumes": None,
     "sodium_foods": None,
-    "moderate_minutes": 90,
-    "vigorous_minutes": 0,
+    "moderate_minutes": None,
+    "vigorous_minutes": None,
     "nicotine_current_use": None,
     "nicotine_former_status": None,
     "nicotine_quit_timing": None,
     "secondhand_exposure_status": None,
-    "sleep_hours": 7.0,
-    "height_ft": 5,
-    "height_in": 9,
-    "weight_lbs": 175.0,
+    "sleep_hours": None,
+    "height_ft": None,
+    "height_in": None,
+    "weight_lbs": None,
     "knows_lipids": False,
     "total_chol": None,
     "hdl": None,
-    "has_diabetes": False,
-    "glucose_method": "unknown",
+    "has_diabetes": None,
+    "glucose_method": None,
     "glucose_value": None,
     "knows_bp": False,
     "sbp": None,
@@ -197,10 +197,10 @@ def card(title: str, body: str, label: str | None = None, class_name: str = "") 
     st.markdown(f"<div class='card {class_name}'>{label_html}<h3>{title}</h3><p class='muted'>{body}</p></div>", unsafe_allow_html=True)
 
 
-def optional_number(label: str, known: bool, min_value: float, max_value: float, value: float, step: float, help_text: str = "") -> float | None:
+def optional_number(label: str, known: bool, min_value: float, max_value: float, value: float | None, step: float, help_text: str = "") -> float | None:
     if not known:
         return None
-    return st.number_input(label, min_value=min_value, max_value=max_value, value=value, step=step, help=help_text)
+    return st.number_input(label, min_value=min_value, max_value=max_value, value=value, step=step, placeholder="Enter value", help=help_text)
 
 
 def legacy_diet_args() -> tuple[str, str, str, str, str]:
@@ -218,6 +218,29 @@ def legacy_diet_args() -> tuple[str, str, str, str, str]:
         st.session_state.processed_food,
         protein_map.get(st.session_state.healthy_proteins, "2-3"),
     )
+
+
+def score_diet_with_blank_check() -> dict:
+    diet_values = [
+        st.session_state.fruit_veg,
+        st.session_state.whole_grains,
+        st.session_state.sugary_drinks,
+        st.session_state.processed_food,
+        st.session_state.healthy_proteins,
+        st.session_state.fish_seafood,
+        st.session_state.nuts_legumes,
+        st.session_state.sodium_foods,
+    ]
+    if any(value is None for value in diet_values):
+        return {
+            "score": None,
+            "label": "Not complete",
+            "explanation": "Answer each diet question to estimate this LE8-style eating-pattern score.",
+        }
+    try:
+        return score_diet(*diet_values)
+    except (TypeError, KeyError):
+        return score_diet(*legacy_diet_args())
 
 
 def legacy_nicotine_status() -> str:
@@ -273,27 +296,17 @@ def score_nicotine_with_fallback() -> dict:
 
 
 def collect_scores() -> tuple[dict, dict]:
-    height_inches = st.session_state.height_ft * 12 + st.session_state.height_in
+    height_inches = None
+    if st.session_state.height_ft is not None and st.session_state.height_in is not None:
+        height_inches = st.session_state.height_ft * 12 + st.session_state.height_in
     bmi = calculate_bmi(height_inches, st.session_state.weight_lbs)
-    try:
-        diet = score_diet(
-            st.session_state.fruit_veg,
-            st.session_state.whole_grains,
-            st.session_state.sugary_drinks,
-            st.session_state.processed_food,
-            st.session_state.healthy_proteins,
-            st.session_state.fish_seafood,
-            st.session_state.nuts_legumes,
-            st.session_state.sodium_foods,
-        )
-    except TypeError:
-        diet = score_diet(*legacy_diet_args())
+    diet = score_diet_with_blank_check()
     activity = score_activity(st.session_state.moderate_minutes, st.session_state.vigorous_minutes)
     lipids = score_lipids(
         st.session_state.total_chol if st.session_state.knows_lipids else None,
         st.session_state.hdl if st.session_state.knows_lipids else None,
     )
-    glucose_value = None if st.session_state.glucose_method == "unknown" else st.session_state.glucose_value
+    glucose_value = None if st.session_state.glucose_method in {None, "unknown"} else st.session_state.glucose_value
     bp = score_bp(
         st.session_state.sbp if st.session_state.knows_bp else None,
         st.session_state.dbp if st.session_state.knows_bp else None,
@@ -326,7 +339,7 @@ def gauge(score: int | None) -> go.Figure:
     value = score or 0
     fig = go.Figure(
         go.Indicator(
-            mode="gauge+number",
+            mode="gauge+number" if score is not None else "gauge",
             value=value,
             number={"suffix": "/100", "font": {"size": 54}},
             gauge={
@@ -342,6 +355,16 @@ def gauge(score: int | None) -> go.Figure:
             },
         )
     )
+    if score is None:
+        fig.add_annotation(
+            text="--/100",
+            x=0.5,
+            y=0.28,
+            xref="paper",
+            yref="paper",
+            showarrow=False,
+            font={"size": 54, "color": "#6f7785"},
+        )
     fig.update_layout(height=280, margin=dict(l=20, r=20, t=20, b=20), paper_bgcolor="rgba(0,0,0,0)")
     return fig
 
@@ -453,9 +476,9 @@ with st.container(border=True):
     st.markdown("<p class='small-label'>About you</p>", unsafe_allow_html=True)
     c1, c2 = st.columns(2)
     with c1:
-        st.number_input("Age", min_value=18, max_value=100, key="age")
+        st.number_input("Age", min_value=18, max_value=100, value=None, placeholder="Enter age", key="age")
     with c2:
-        st.selectbox("Sex", ["Female", "Male", "Other", "Prefer not to say"], key="sex")
+        st.selectbox("Sex", ["Female", "Male", "Other", "Prefer not to say"], index=None, placeholder="Choose one", key="sex")
 
 with st.container(border=True):
     st.markdown("<p class='small-label'>1 of 8 - LE8 diet domain</p>", unsafe_allow_html=True)
@@ -566,7 +589,9 @@ with st.container(border=True):
             "In an average week over the past month, how many minutes did you spend doing moderate activity?",
             min_value=0,
             max_value=2000,
+            value=None,
             step=10,
+            placeholder="Enter minutes",
             key="moderate_minutes",
             help="Moderate means your breathing picks up, but you can still talk. Examples: brisk walking, cycling, dancing, swimming, or yard work.",
         )
@@ -575,7 +600,9 @@ with st.container(border=True):
             "In an average week over the past month, how many minutes did you spend doing vigorous activity?",
             min_value=0,
             max_value=1000,
+            value=None,
             step=10,
+            placeholder="Enter minutes",
             key="vigorous_minutes",
             help="Vigorous means you are breathing hard and can only say a few words at a time.",
         )
@@ -647,7 +674,9 @@ with c2:
             "Over the past month, how many hours did you usually sleep per night?",
             min_value=0.0,
             max_value=16.0,
+            value=None,
             step=0.25,
+            placeholder="Enter hours",
             key="sleep_hours",
             help="Use your usual sleep duration, including weekends if they are part of your normal pattern.",
         )
@@ -658,13 +687,19 @@ with st.container(border=True):
     st.caption(DOMAIN_COPY["Body size"])
     c1, c2, c3 = st.columns(3)
     with c1:
-        st.number_input("How tall are you? Feet", min_value=3, max_value=8, key="height_ft")
+        st.number_input("How tall are you? Feet", min_value=3, max_value=8, value=None, placeholder="Feet", key="height_ft")
     with c2:
-        st.number_input("How tall are you? Inches", min_value=0, max_value=11, key="height_in")
+        st.number_input("How tall are you? Inches", min_value=0, max_value=11, value=None, placeholder="Inches", key="height_in")
     with c3:
-        st.number_input("What is your current weight in pounds?", min_value=60.0, max_value=700.0, step=1.0, key="weight_lbs")
-    bmi_preview = calculate_bmi(st.session_state.height_ft * 12 + st.session_state.height_in, st.session_state.weight_lbs)
-    st.caption(f"Your estimated BMI is {bmi_preview}. BMI is an imperfect screening tool and does not measure muscle, body composition, or overall health by itself.")
+        st.number_input("What is your current weight in pounds?", min_value=60.0, max_value=700.0, value=None, step=1.0, placeholder="Pounds", key="weight_lbs")
+    preview_height = None
+    if st.session_state.height_ft is not None and st.session_state.height_in is not None:
+        preview_height = st.session_state.height_ft * 12 + st.session_state.height_in
+    bmi_preview = calculate_bmi(preview_height, st.session_state.weight_lbs)
+    if bmi_preview is None:
+        st.caption("Enter height and weight to estimate BMI. BMI is an imperfect screening tool and does not measure muscle, body composition, or overall health by itself.")
+    else:
+        st.caption(f"Your estimated BMI is {bmi_preview}. BMI is an imperfect screening tool and does not measure muscle, body composition, or overall health by itself.")
 
 c1, c2 = st.columns(2)
 with c1:
@@ -683,17 +718,26 @@ with c2:
         st.markdown("<p class='small-label'>7 of 8 - LE8 blood sugar domain</p>", unsafe_allow_html=True)
         st.subheader("Blood sugar")
         st.caption(DOMAIN_COPY["Blood sugar"])
-        st.radio("Have you ever been told you have diabetes?", [False, True], format_func=lambda value: "Yes" if value else "No", horizontal=True, key="has_diabetes")
-        st.selectbox("Which recent blood sugar number do you have available?", ["a1c", "fasting_glucose", "unknown"], format_func=lambda value: {"a1c": "Hemoglobin A1c", "fasting_glucose": "Fasting glucose", "unknown": "I don't know"}[value], key="glucose_method")
-        if st.session_state.glucose_method == "unknown":
+        st.radio("Have you ever been told you have diabetes?", [False, True], format_func=lambda value: "Yes" if value else "No", index=None, horizontal=True, key="has_diabetes")
+        st.selectbox(
+            "Which recent blood sugar number do you have available?",
+            ["a1c", "fasting_glucose", "unknown"],
+            format_func=lambda value: {"a1c": "Hemoglobin A1c", "fasting_glucose": "Fasting glucose", "unknown": "I don't know"}[value],
+            index=None,
+            placeholder="Choose one",
+            key="glucose_method",
+        )
+        if st.session_state.glucose_method is None:
+            st.session_state.glucose_value = None
+            st.info("Leave this blank if you do not know it. This section will be marked as missing.")
+        elif st.session_state.glucose_method == "unknown":
             st.session_state.glucose_value = None
             st.info("No problem. This section will be marked as missing, and your results will suggest what to check next.")
         else:
             helper = "A1c estimates your average blood sugar over about 3 months." if st.session_state.glucose_method == "a1c" else "Fasting glucose is usually measured after not eating overnight."
-            default = 5.6 if st.session_state.glucose_method == "a1c" else 95.0
             step = 0.1 if st.session_state.glucose_method == "a1c" else 1.0
             max_value = 15.0 if st.session_state.glucose_method == "a1c" else 400.0
-            st.session_state.glucose_value = st.number_input("Enter your value", min_value=0.0, max_value=max_value, value=default, step=step, help=helper)
+            st.session_state.glucose_value = st.number_input("Enter your value", min_value=0.0, max_value=max_value, value=None, step=step, placeholder="Enter value", help=helper)
 
 with st.container(border=True):
     st.markdown("<p class='small-label'>8 of 8 - LE8 blood pressure domain</p>", unsafe_allow_html=True)
@@ -704,11 +748,14 @@ with st.container(border=True):
         st.info("No problem. A validated home blood pressure cuff is one of the most useful prevention tools you can own.")
     c1, c2, c3 = st.columns(3)
     with c1:
-        st.session_state.sbp = optional_number("Top number / systolic", st.session_state.knows_bp, 70.0, 260.0, 125.0, 1.0, "The pressure when your heart squeezes.")
+        st.session_state.sbp = optional_number("Top number / systolic", st.session_state.knows_bp, 70.0, 260.0, None, 1.0, "The pressure when your heart squeezes.")
     with c2:
-        st.session_state.dbp = optional_number("Bottom number / diastolic", st.session_state.knows_bp, 40.0, 160.0, 78.0, 1.0, "The pressure when your heart relaxes.")
+        st.session_state.dbp = optional_number("Bottom number / diastolic", st.session_state.knows_bp, 40.0, 160.0, None, 1.0, "The pressure when your heart relaxes.")
     with c3:
-        st.checkbox("I take blood pressure medication", key="bp_treated")
+        if st.session_state.knows_bp:
+            st.checkbox("I take blood pressure medication", key="bp_treated")
+        else:
+            st.session_state.bp_treated = False
 
 st.divider()
 components, raw_inputs = collect_scores()
@@ -814,8 +861,9 @@ with st.container(border=True):
                     "hsCRP in mg/L",
                     min_value=0.0,
                     max_value=50.0,
-                    value=1.0,
+                    value=None,
                     step=0.1,
+                    placeholder="Enter hsCRP",
                     help="High-sensitivity C-reactive protein is a blood marker of inflammation. Values above 10 mg/L may reflect acute illness and often need repeat testing.",
                 )
             else:
@@ -828,8 +876,9 @@ with st.container(border=True):
                     "Lp(a) in nmol/L",
                     min_value=0.0,
                     max_value=800.0,
-                    value=75.0,
+                    value=None,
                     step=5.0,
+                    placeholder="Enter Lp(a)",
                     help="Lp(a) is largely inherited. Many guidelines use 125 nmol/L as a risk-enhancing threshold.",
                 )
             else:

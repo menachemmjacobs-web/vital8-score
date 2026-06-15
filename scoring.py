@@ -41,8 +41,8 @@ def category_for_total(score: float | None) -> tuple[str, str]:
     )
 
 
-def calculate_bmi(height_inches: float, weight_lbs: float) -> float | None:
-    if height_inches <= 0 or weight_lbs <= 0:
+def calculate_bmi(height_inches: float | None, weight_lbs: float | None) -> float | None:
+    if height_inches is None or weight_lbs is None or height_inches <= 0 or weight_lbs <= 0:
         return None
     return round((weight_lbs / (height_inches**2)) * 703, 1)
 
@@ -79,7 +79,9 @@ def score_diet(
     )
 
 
-def score_activity(moderate_minutes: float, vigorous_minutes: float) -> ScoreResult:
+def score_activity(moderate_minutes: float | None, vigorous_minutes: float | None) -> ScoreResult:
+    if moderate_minutes is None or vigorous_minutes is None:
+        return _result(None, "Not complete", "Enter your usual weekly activity minutes to score this domain.", equivalent_minutes=0)
     equivalent = max(0, moderate_minutes) + 2 * max(0, vigorous_minutes)
     if equivalent == 0:
         score = 0
@@ -128,7 +130,9 @@ def score_nicotine(current_use: str, former_use: bool, quit_timing: str | None, 
     return _result(score, label, "Avoiding nicotine and secondhand exposure is one of the highest-impact cardiovascular choices.")
 
 
-def score_sleep(hours: float) -> ScoreResult:
+def score_sleep(hours: float | None) -> ScoreResult:
+    if hours is None:
+        return _result(None, "Not entered", "Enter your usual sleep duration to score this domain.")
     if 7 <= hours < 9:
         score = 100
     elif 6 <= hours < 7 or 9 <= hours < 10:
@@ -175,9 +179,11 @@ def score_lipids(total_chol: float | None, hdl: float | None) -> ScoreResult:
     return _result(score, f"Non-HDL {non_hdl:.0f} mg/dL", "Non-HDL cholesterol is total cholesterol minus HDL.", non_hdl=non_hdl)
 
 
-def score_glucose(method: str, value: float | None, has_diabetes: bool) -> ScoreResult:
-    if method == "unknown" or value is None:
+def score_glucose(method: str | None, value: float | None, has_diabetes: bool | None) -> ScoreResult:
+    if method is None or method == "unknown" or value is None:
         return _result(None, "Not entered", "A1c or fasting glucose can help show how your body handles energy over time.")
+    if has_diabetes is None:
+        return _result(None, "Not complete", "Select whether you have been told you have diabetes.")
     if method == "a1c":
         if has_diabetes:
             score = 40 if value < 7 else 30 if value < 8 else 20 if value < 9 else 10
