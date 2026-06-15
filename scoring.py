@@ -48,15 +48,21 @@ def calculate_bmi(height_inches: float, weight_lbs: float) -> float | None:
 
 
 def score_diet(
-    fruit_veg: str,
-    whole_grains: str,
-    sugary_drinks: str,
-    processed_food: str,
-    healthy_proteins: str,
-    fish_seafood: str,
-    nuts_legumes: str,
-    sodium_foods: str,
+    fruit_veg: str | None,
+    whole_grains: str | None,
+    sugary_drinks: str | None,
+    processed_food: str | None,
+    healthy_proteins: str | None,
+    fish_seafood: str | None,
+    nuts_legumes: str | None,
+    sodium_foods: str | None,
 ) -> ScoreResult:
+    if None in {fruit_veg, whole_grains, sugary_drinks, processed_food, healthy_proteins, fish_seafood, nuts_legumes, sodium_foods}:
+        return _result(
+            None,
+            "Not complete",
+            "Answer each diet question to estimate this LE8-style eating-pattern score.",
+        )
     fruit_points = {"0": 0, "1-2": 5, "3-4": 15, "5+": 25}[fruit_veg]
     grain_points = {"rarely": 0, "sometimes": 5, "most": 10, "always": 15}[whole_grains]
     drink_points = {"0": 10, "1-3": 7, "4-7": 3, "7+": 0}[sugary_drinks]

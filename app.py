@@ -61,20 +61,20 @@ AUTHOR_LINKEDIN = "https://www.linkedin.com/in/menachem-jacobs-b35222122/"
 DEFAULTS = {
     "age": 45,
     "sex": "Female",
-    "fruit_veg": "1-2",
-    "whole_grains": "sometimes",
-    "sugary_drinks": "1-3",
-    "processed_food": "2-3",
-    "healthy_proteins": "mixed",
-    "fish_seafood": "1",
-    "nuts_legumes": "few_weekly",
-    "sodium_foods": "sometimes",
+    "fruit_veg": None,
+    "whole_grains": None,
+    "sugary_drinks": None,
+    "processed_food": None,
+    "healthy_proteins": None,
+    "fish_seafood": None,
+    "nuts_legumes": None,
+    "sodium_foods": None,
     "moderate_minutes": 90,
     "vigorous_minutes": 0,
-    "nicotine_current_use": "none",
-    "nicotine_former_status": "never",
-    "nicotine_quit_timing": "10_plus",
-    "secondhand_exposure_status": "no",
+    "nicotine_current_use": None,
+    "nicotine_former_status": None,
+    "nicotine_quit_timing": None,
+    "secondhand_exposure_status": None,
     "sleep_hours": 7.0,
     "height_ft": 5,
     "height_in": 9,
@@ -221,6 +221,8 @@ def legacy_diet_args() -> tuple[str, str, str, str, str]:
 
 
 def legacy_nicotine_status() -> str:
+    if st.session_state.nicotine_current_use is None:
+        return "none"
     if st.session_state.nicotine_current_use in {"combustible", "dual"}:
         return "current_tobacco"
     if st.session_state.nicotine_current_use == "ecig_smokeless":
@@ -235,6 +237,30 @@ def legacy_nicotine_status() -> str:
 
 
 def score_nicotine_with_fallback() -> dict:
+    if st.session_state.nicotine_current_use is None:
+        return {
+            "score": None,
+            "label": "Not entered",
+            "explanation": "Answer the nicotine and secondhand exposure questions to score this domain.",
+        }
+    if st.session_state.nicotine_current_use == "none" and st.session_state.nicotine_former_status is None:
+        return {
+            "score": None,
+            "label": "Not complete",
+            "explanation": "Select whether you are a never-user or former user.",
+        }
+    if st.session_state.nicotine_former_status == "former" and st.session_state.nicotine_quit_timing is None:
+        return {
+            "score": None,
+            "label": "Not complete",
+            "explanation": "Select how long ago you quit nicotine or tobacco.",
+        }
+    if st.session_state.secondhand_exposure_status is None:
+        return {
+            "score": None,
+            "label": "Not complete",
+            "explanation": "Select whether you have regular secondhand smoke or vapor exposure.",
+        }
     try:
         return score_nicotine(
             st.session_state.nicotine_current_use,
@@ -440,6 +466,8 @@ with st.container(border=True):
         st.selectbox(
             "On a typical day, how many servings of fruits and vegetables do you eat?",
             ["0", "1-2", "3-4", "5+"],
+            index=None,
+            placeholder="Choose one",
             key="fruit_veg",
             help="One serving is about a handful, a cup of salad, or one piece of fruit. Estimate your usual day, not your best day.",
         )
@@ -452,12 +480,16 @@ with st.container(border=True):
                 "most": "Most of the time",
                 "always": "Almost always",
             }[value],
+            index=None,
+            placeholder="Choose one",
             key="whole_grains",
             help="Examples include oatmeal, whole wheat bread, brown rice, quinoa, barley, or high-fiber cereal.",
         )
         st.selectbox(
             "In a typical week, how many sugary drinks do you have?",
             ["0", "1-3", "4-7", "7+"],
+            index=None,
+            placeholder="Choose one",
             key="sugary_drinks",
             help="Include soda, sweet tea, juice drinks, energy drinks, and sweetened coffee drinks.",
         )
@@ -465,6 +497,8 @@ with st.container(border=True):
         st.selectbox(
             "In a typical week, how many meals come from fast food, fried food, or heavily processed foods?",
             ["0-1", "2-3", "4-6", "7+"],
+            index=None,
+            placeholder="Choose one",
             key="processed_food",
             help="Estimate meals or snack occasions per week.",
         )
@@ -477,6 +511,8 @@ with st.container(border=True):
                 "lean_meat": "Mostly poultry or lean meat, limited red or processed meat",
                 "red_processed": "Mostly red or processed meat",
             }[value],
+            index=None,
+            placeholder="Choose one",
             key="healthy_proteins",
             help="Examples of heart-healthy proteins include fish, beans, lentils, tofu, nuts, and seeds.",
         )
@@ -489,6 +525,8 @@ with st.container(border=True):
                 "monthly": "A few times a month",
                 "rarely": "Rarely or never",
             }[value],
+            index=None,
+            placeholder="Choose one",
             key="fish_seafood",
         )
         st.selectbox(
@@ -500,6 +538,8 @@ with st.container(border=True):
                 "weekly": "About once a week",
                 "rarely": "Rarely or never",
             }[value],
+            index=None,
+            placeholder="Choose one",
             key="nuts_legumes",
         )
         st.selectbox(
@@ -510,6 +550,8 @@ with st.container(border=True):
                 "sometimes": "Sometimes",
                 "often": "Often - most meals are salty or restaurant-prepared",
             }[value],
+            index=None,
+            placeholder="Choose one",
             key="sodium_foods",
             help="Examples include canned soups, chips, soy sauce, pickled foods, deli meats, and frequent restaurant meals.",
         )
@@ -558,6 +600,8 @@ with c1:
                 "ecig_smokeless": "Yes - e-cigarettes, vapes, nicotine pouches, or smokeless tobacco",
                 "dual": "Yes - combustible tobacco plus another nicotine product",
             }[value],
+            index=None,
+            placeholder="Choose one",
             key="nicotine_current_use",
         )
         if st.session_state.nicotine_current_use == "none":
@@ -568,6 +612,7 @@ with c1:
                     "never": "No, never a regular user",
                     "former": "Yes, I used to, but I quit",
                 }[value],
+                index=None,
                 key="nicotine_former_status",
             )
             if st.session_state.nicotine_former_status == "former":
@@ -581,12 +626,15 @@ with c1:
                         "5_9": "5-9 years ago",
                         "10_plus": "10 or more years ago",
                     }[value],
+                    index=None,
+                    placeholder="Choose one",
                     key="nicotine_quit_timing",
                 )
         st.radio(
             "In a typical week, am I regularly exposed to tobacco smoke or e-cigarette vapor at home, work, or in vehicles?",
             ["no", "yes"],
             format_func=lambda value: {"no": "No", "yes": "Yes"}[value],
+            index=None,
             key="secondhand_exposure_status",
             horizontal=True,
         )
@@ -676,7 +724,7 @@ if total["known_count"] < 5:
 
 c1, c2 = st.columns([1, 1.15])
 with c1:
-    st.plotly_chart(gauge(result_score), width="stretch")
+    st.plotly_chart(gauge(result_score), width="stretch", config={"displayModeBar": False})
 with c2:
     st.markdown("<p class='small-label'>Life's Essential 8 snapshot</p>", unsafe_allow_html=True)
     st.markdown(f"<div class='score-number'>{result_score if result_score is not None else '--'}</div>", unsafe_allow_html=True)
@@ -736,9 +784,9 @@ for name in DOMAIN_ORDER:
 
 c1, c2 = st.columns(2)
 with c1:
-    st.plotly_chart(radar_chart(components), width="stretch")
+    st.plotly_chart(radar_chart(components), width="stretch", config={"displayModeBar": False})
 with c2:
-    st.plotly_chart(bar_chart(components), width="stretch")
+    st.plotly_chart(bar_chart(components), width="stretch", config={"displayModeBar": False})
 
 with st.expander("Technical component details"):
     st.dataframe(component_dataframe(components, raw_inputs), width="stretch", hide_index=True)
