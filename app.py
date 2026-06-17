@@ -9,6 +9,8 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from biomarkers import advanced_category, biomarker_next_steps, calculate_biomarker_adjustment, required_raw_le8
+from chatbot import render_chatbot
+from le8_scoring import build_score_summary
 from recommendations import estimate_gain, generate_30_day_plan, get_domain_recommendation, get_top_opportunities
 from scoring import (
     calculate_bmi,
@@ -980,3 +982,6 @@ with st.container(border=True):
             f"Have feedback, questions, or ideas for improving Vital8? "
             f"[Reach out by email](mailto:{AUTHOR_EMAIL})."
         )
+
+score_summary = build_score_summary(total, components, raw_inputs, plan)
+render_chatbot(score_summary)
