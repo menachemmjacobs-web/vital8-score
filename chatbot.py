@@ -12,8 +12,8 @@ from content_library import APPROVED_SCOPE, LE8_DOMAIN_EXPLANATIONS
 from guardrails import detect_red_flags
 
 
-# Configure the model here. Override with VITAL8_AI_MODEL if desired.
-AI_MODEL = os.environ.get("VITAL8_AI_MODEL", "gpt-5-mini")
+# Configure the model here. Override with Streamlit secret VITAL8_AI_MODEL or env var if desired.
+DEFAULT_AI_MODEL = "gpt-5-mini"
 MAX_OUTPUT_TOKENS = 450
 
 SYSTEM_PROMPT = (
@@ -33,6 +33,14 @@ def _api_key() -> str | None:
     except Exception:
         secret_key = None
     return secret_key or os.environ.get("OPENAI_API_KEY")
+
+
+def _model_name() -> str:
+    try:
+        secret_model = st.secrets.get("VITAL8_AI_MODEL")
+    except Exception:
+        secret_model = None
+    return secret_model or os.environ.get("VITAL8_AI_MODEL", DEFAULT_AI_MODEL)
 
 
 def _compact_context(score_summary: dict[str, Any] | None) -> str:
@@ -65,7 +73,7 @@ def _call_openai(api_key: str, score_summary: dict[str, Any] | None, user_messag
         f"User question: {user_message}"
     )
     response = client.responses.create(
-        model=AI_MODEL,
+        model=_model_name(),
         input=[
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": user_payload},
@@ -73,6 +81,21 @@ def _call_openai(api_key: str, score_summary: dict[str, Any] | None, user_messag
         max_output_tokens=MAX_OUTPUT_TOKENS,
     )
     return _response_text(response)
+
+
+def _openai_error_message(error: Exception) -> str:
+    status_code = getattr(error, "status_code", None)
+    message = str(error).lower()
+
+    if status_code == 401 or "invalid api key" in message or "incorrect api key" in message:
+        return "The AI key looks invalid or revoked. Create a new OpenAI API key, add it to Streamlit Secrets, save, and reboot the app."
+    if status_code == 403 or "permission" in message or "project" in message:
+        return "The AI key is present, but this project may not have access to the selected model. Check the key's project permissions or set VITAL8_AI_MODEL to a model your project can use."
+    if status_code == 404 or "model" in message:
+        return "The AI model was not found for this API key. In Streamlit Secrets, try adding VITAL8_AI_MODEL = \"gpt-4.1-mini\" or another model available to your OpenAI project."
+    if status_code == 429 or "quota" in message or "billing" in message:
+        return "The AI key is present, but billing or quota may not be active for the OpenAI project. Check OpenAI billing/usage, then reboot the app."
+    return "I could not reach the AI service right now. Check the Streamlit app logs for the OpenAI error, then try again."
 
 
 def render_chatbot(score_summary: dict[str, Any] | None) -> None:
@@ -117,8 +140,8 @@ def render_chatbot(score_summary: dict[str, Any] | None) -> None:
     else:
         try:
             assistant_text = _call_openai(api_key, score_summary, user_message)
-        except Exception:
-            assistant_text = "I could not reach the AI service right now. Please try again later."
+        except Exception as error:
+            assistant_text = _openai_error_message(error)
 
     st.session_state.vital8_chat_messages.append({"role": "assistant", "content": assistant_text})
     with st.chat_message("assistant"):
