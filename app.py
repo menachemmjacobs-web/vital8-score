@@ -10,6 +10,7 @@ import streamlit as st
 
 from biomarkers import advanced_category, biomarker_next_steps, calculate_biomarker_adjustment, required_raw_le8
 from chatbot import render_chatbot
+from fitness import CRF_CATEGORIES, calculate_fitness_adjustment, estimate_percentile_category
 from le8_scoring import build_score_summary
 from recommendations import estimate_gain, generate_30_day_plan, get_domain_recommendation, get_top_opportunities
 from scoring import (
@@ -96,6 +97,10 @@ DEFAULTS = {
     "hs_crp": None,
     "knows_lpa": False,
     "lpa": None,
+    "fitness_enabled": False,
+    "fitness_method": None,
+    "vo2max": None,
+    "crf_percentile_category": None,
 }
 
 for key, value in DEFAULTS.items():
@@ -839,6 +844,90 @@ with c2:
 
 with st.expander("Technical component details"):
     st.dataframe(component_dataframe(components, raw_inputs), width="stretch", hide_index=True)
+
+st.divider()
+st.header("Vital8 Fitness: VO2max quotient")
+st.caption(
+    "Your standard LE8 score stays intact. This optional layer asks whether cardiorespiratory fitness, measured or estimated by VO2max, "
+    "should amplify or attenuate the interpretation of the LE8 score."
+)
+st.warning(
+    "Conceptual caveat: this VO2max quotient is an experimental Vital8 framework. It is not a validated clinical calculator, "
+    "and the simplified percentile estimate should not replace formal exercise testing or clinician-guided interpretation."
+)
+
+with st.container(border=True):
+    st.markdown("<p class='small-label'>Optional fitness input</p>", unsafe_allow_html=True)
+    st.checkbox("Add VO2max / cardiorespiratory fitness modifier", key="fitness_enabled")
+    fitness_category_key = None
+    fitness_estimate = {"category_key": None, "median": None, "ratio": None}
+    if st.session_state.fitness_enabled:
+        st.radio(
+            "How do you want to enter cardiorespiratory fitness?",
+            ["vo2max", "percentile"],
+            format_func=lambda value: {
+                "vo2max": "Enter VO2max and estimate a broad age/sex category",
+                "percentile": "I already know the age/sex-adjusted percentile category",
+            }[value],
+            index=None,
+            key="fitness_method",
+        )
+
+        if st.session_state.fitness_method == "vo2max":
+            st.session_state.vo2max = st.number_input(
+                "VO2max in mL/kg/min",
+                min_value=5.0,
+                max_value=90.0,
+                value=None,
+                step=0.5,
+                placeholder="Enter VO2max",
+                help="Use measured VO2max from CPET, a validated wearable estimate, or a treadmill-test estimate if available.",
+            )
+            fitness_estimate = estimate_percentile_category(
+                st.session_state.vo2max,
+                st.session_state.age,
+                st.session_state.sex,
+            )
+            fitness_category_key = fitness_estimate["category_key"]
+            if fitness_category_key is None:
+                st.info("Enter age, sex, and VO2max to estimate a broad percentile category, or choose the percentile option instead.")
+            else:
+                ratio_text = f"{fitness_estimate['ratio']:.2f}x" if fitness_estimate["ratio"] is not None else "not calculated"
+                st.caption(
+                    f"Broad estimate: your VO2max is about {ratio_text} the approximate median for the selected age/sex band. "
+                    "This is a simplified estimate, not a formal FRIEND percentile calculation."
+                )
+        elif st.session_state.fitness_method == "percentile":
+            st.selectbox(
+                "VO2max percentile category",
+                list(CRF_CATEGORIES.keys()),
+                format_func=lambda key: f"{CRF_CATEGORIES[key]['label']} - {CRF_CATEGORIES[key]['interpretation']}",
+                index=None,
+                placeholder="Choose one",
+                key="crf_percentile_category",
+            )
+            fitness_category_key = st.session_state.crf_percentile_category
+
+    fitness_adjustment = calculate_fitness_adjustment(result_score, fitness_category_key)
+
+if st.session_state.fitness_enabled:
+    c1, c2, c3 = st.columns(3)
+    with c1:
+        category_text = "Enter VO2max or percentile." if fitness_adjustment["category"] is None else fitness_adjustment["category"]["interpretation"]
+        card("Fitness category", category_text, "CRF", "metric-card")
+    with c2:
+        vmq_text = "Not calculated yet." if fitness_adjustment["vmq"] is None else f"{fitness_adjustment['vmq']:.2f}x LE8 modifier"
+        card("VO2max quotient", vmq_text, "VMQ", "metric-card")
+    with c3:
+        modified_text = "Not enough LE8 data yet." if fitness_adjustment["modified_score"] is None else f"{fitness_adjustment['modified_score']}/100 conceptual fitness-modified estimate"
+        card("Fitness-modified LE8", modified_text, "Exploratory", "metric-card")
+
+    if fitness_adjustment["vmq"] is not None:
+        st.info(
+            f"In this prototype, VMQ = 0.80 + 0.004 x CRF score. "
+            f"Your CRF score is {fitness_adjustment['crf_score']}/100, so the multiplier is {fitness_adjustment['vmq']:.2f}. "
+            "This preserves the raw LE8 score while showing how measured fitness could change interpretation."
+        )
 
 st.divider()
 st.header("Vital8 Advanced: biological drag")

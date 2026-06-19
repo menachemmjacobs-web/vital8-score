@@ -64,6 +64,7 @@ export VITAL8_AI_MODEL="gpt-5-mini"
 - Score ranges follow the LE8 framing used in the app: low below 50, moderate 50-79, high 80-100.
 - If lipids, glucose, or blood pressure are missing, the app calculates a partial score.
 - The diet score is an adapted consumer-facing estimate that uses eight LE8-aligned food-pattern questions. It is not the full AHA diet algorithm or a validated dietary recall.
+- The optional Vital8 Fitness layer keeps LE8 unchanged, then adds a conceptual VO2max/cardiorespiratory fitness modifier. This is exploratory and not a validated clinical calculator.
 - The optional Vital8 Advanced layer keeps LE8 unchanged, then adds a conceptual hsCRP/Lp(a) "biological drag" estimate. hsCRP is treated as a potentially modifiable inflammatory signal; Lp(a) is treated as a largely genetic risk signal. This is an exploratory prototype, not a validated clinical calculator.
 - Ask Vital8 AI is educational only. It uses rule-based guardrails to block urgent symptoms and medication-change requests before any OpenAI API call.
 - Newsletter signup is handled by Substack through an outbound link. This app does not store newsletter emails.

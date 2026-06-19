@@ -349,6 +349,51 @@ Implemented rationale:
 - Blood pressure is treated as common, often silent, measurable at home, and highly modifiable.
 - The medication penalty reflects that treated blood pressure implies underlying hypertension burden even if the measured value is controlled.
 
+## Vital8 Fitness VO2max quotient
+
+The Vital8 Fitness layer is an optional conceptual modifier that keeps the raw LE8 score intact, then asks whether cardiorespiratory fitness changes the interpretation. It is based on the idea that self-reported activity minutes and measured fitness are related but not identical.
+
+Inputs:
+
+- VO2max in mL/kg/min plus age and sex, used to estimate a broad fitness category.
+- Or a user-entered age/sex-adjusted VO2max percentile category if already known.
+
+The current app uses simplified median VO2max reference anchors by age band and sex. The estimate is intentionally broad and should not be described as a formal FRIEND percentile calculation.
+
+CRF scoring:
+
+| VO2max percentile category | CRF score | Interpretation |
+| --- | --- | --- |
+| >=80th percentile | 100 | Elite / highly fit |
+| 60th-79th percentile | 80 | Fit |
+| 40th-59th percentile | 60 | Moderate fitness |
+| 20th-39th percentile | 40 | Below average fitness |
+| <20th percentile | 20 | Low fitness |
+
+Formula:
+
+```text
+VO2max quotient, or VMQ = 0.80 + (0.004 * CRF score)
+Fitness-modified LE8 = round(raw LE8 * VMQ), capped from 0 to 100
+```
+
+VMQ outputs:
+
+| CRF score | VMQ | Effect on LE8 |
+| --- | --- | --- |
+| 100 | 1.20 | +20% |
+| 80 | 1.12 | +12% |
+| 60 | 1.04 | +4% |
+| 40 | 0.96 | -4% |
+| 20 | 0.88 | -12% |
+
+Implemented rationale:
+
+- CRF is treated as an integrated physiological signal that may add information beyond self-reported activity minutes.
+- The modifier is multiplicative rather than averaged as a ninth component, so fitness can amplify or attenuate interpretation without changing the raw LE8 foundation.
+- The app clearly labels the layer as conceptual and exploratory.
+- Formal calibration against outcomes would be required before using this as a validated risk model.
+
 ## Vital8 Advanced biomarker layer
 
 The Vital8 Advanced layer is intentionally separate from the standard LE8 score. The code describes it as a conceptual translation of published risk gradients into an exploratory score modifier. It is not a validated clinical calculator.
@@ -442,6 +487,7 @@ If the required raw LE8 is above 100, the app states that the target is not achi
 - The foundational score is an LE8-style educational implementation, not a certified clinical calculator.
 - The diet score is an adapted consumer-facing dietary pattern estimate that now captures more LE8-aligned dietary features than the original five-question prototype.
 - The biomarker layer is explicitly conceptual and exploratory.
+- The VO2max fitness layer is explicitly conceptual and exploratory.
 - The adjusted biomarker score is cross-sectional and should not be used to diagnose, treat, or replace clinician-guided risk assessment.
 - hsCRP can be transiently elevated by acute illness, injury, inflammatory conditions, and other context.
 - Lp(a) is mostly genetic; the intervention logic is currently focused on lowering surrounding modifiable risk.
