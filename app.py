@@ -40,6 +40,7 @@ EVIDENCE_NOTE = _copy_module.EVIDENCE_NOTE
 LANDING_PARAGRAPHS = _copy_module.LANDING_PARAGRAPHS
 LANDING_TITLE = _copy_module.LANDING_TITLE
 WHAT_THIS_MEASURES = _copy_module.WHAT_THIS_MEASURES
+WHY_SCORE_MATTERS = _copy_module.WHY_SCORE_MATTERS
 
 
 st.set_page_config(page_title="Vital8 Heart Health Score", page_icon="V8", layout="wide", initial_sidebar_state="collapsed")
@@ -569,6 +570,15 @@ with c4:
     card("Go deeper when ready", "Optional research layers explore VO2max, inflammation, and inherited lipid risk after the LE8 foundation.", "Advanced lenses", "equal-card")
 
 st.write("")
+st.subheader("Why your score matters")
+st.caption("The science is population-level, not a personal guarantee. But the signal is strong: better cardiovascular health tracks with better long-term outcomes.")
+for start in range(0, len(WHY_SCORE_MATTERS), 2):
+    why_cols = st.columns(2)
+    for col, item in zip(why_cols, WHY_SCORE_MATTERS[start : start + 2]):
+        with col:
+            card(item["title"], item["body"], class_name="equal-card")
+    st.write("")
+
 st.markdown(f"<div class='disclaimer'>{DISCLAIMER}</div>", unsafe_allow_html=True)
 st.info(WHAT_THIS_MEASURES)
 st.caption(EVIDENCE_NOTE)

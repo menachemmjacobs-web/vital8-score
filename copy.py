@@ -63,6 +63,25 @@ EVIDENCE_NOTE = (
     "The goal is not to be perfect. The goal is to see which lever is most worth improving next."
 )
 
+WHY_SCORE_MATTERS = [
+    {
+        "title": "One number",
+        "body": "Eight everyday levers combine into one 0-100 snapshot of cardiovascular health.",
+    },
+    {
+        "title": "Lower risk",
+        "body": "Higher LE8 scores are consistently associated with fewer heart attacks, strokes, heart failure events, diabetes, dementia, and premature deaths.",
+    },
+    {
+        "title": "More healthy years",
+        "body": "In large population studies, high cardiovascular health is linked with more years lived free of major chronic disease.",
+    },
+    {
+        "title": "Actionable",
+        "body": "You do not need to be perfect. Moving from low to moderate cardiovascular health can matter, and Vital8 helps identify where to start.",
+    },
+]
+
 DOMAIN_COPY = {
     "Daily fuel": "LE8 includes diet because your usual food pattern affects cholesterol, blood pressure, blood sugar, weight, and inflammation. Think about your usual eating pattern over the last few months. There are no perfect answers - we're looking for your typical routine.",
     "Movement": "LE8 gives credit for weekly movement because activity improves blood pressure, insulin sensitivity, sleep, mood, and long-term heart health.",

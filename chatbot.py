@@ -11,6 +11,7 @@ import streamlit as st
 from content_library import (
     ADVANCED_INTERPRETATION_GUIDE,
     APPROVED_SCOPE,
+    LE8_EVIDENCE_POSITIONING,
     LE8_DOMAIN_EXPLANATIONS,
     SCORING_METHODOLOGY,
 )
@@ -83,6 +84,7 @@ def _compact_context(score_summary: dict[str, Any] | None) -> str:
         "score_summary": summary,
         "approved_scope": APPROVED_SCOPE,
         "scoring_methodology": SCORING_METHODOLOGY,
+        "le8_evidence_positioning": LE8_EVIDENCE_POSITIONING,
         "advanced_interpretation_guide": ADVANCED_INTERPRETATION_GUIDE,
         "domain_explanations": LE8_DOMAIN_EXPLANATIONS,
     }

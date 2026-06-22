@@ -52,3 +52,14 @@ ADVANCED_INTERPRETATION_GUIDE = (
     "prevention margin someone appears to have, but the main actions remain evidence-based LE8 habits plus "
     "clinician-guided risk-factor management."
 )
+
+
+LE8_EVIDENCE_POSITIONING = (
+    "When explaining why LE8 matters, use persuasive but careful language. Describe the score as one number built "
+    "from eight levers: diet, activity, nicotine exposure, sleep, body size, cholesterol, blood sugar, and blood "
+    "pressure. Higher LE8 scores are associated in large cohort studies with lower risk of heart attack, stroke, "
+    "heart failure, diabetes, dementia, premature death, and more years lived free from major chronic disease. "
+    "Do not promise that an individual user will gain a specific number of years or avoid a disease. Emphasize "
+    "that the value of the score is actionability: it shows what is already strong, what is missing, and which "
+    "one or two levers may be most worth improving next."
+)
