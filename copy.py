@@ -25,21 +25,17 @@ LANDING_TITLE = "Know Your Heart Health Score"
 
 LANDING_PARAGRAPHS = [
     (
-        "Vital8 starts with a simple question: how strong is your cardiovascular health foundation today?"
+        "One number. Eight levers. A practical snapshot of your prevention foundation."
     ),
     (
-        "The core score is based on the American Heart Association's Life's Essential 8: nutrition, activity, nicotine exposure, "
-        "sleep, body size, cholesterol, blood sugar, and blood pressure."
+        "Built around the American Heart Association's Life's Essential 8: nutrition, activity, nicotine exposure, sleep, body size, cholesterol, blood sugar, and blood pressure."
     ),
     (
-        "Higher LE8 scores have been associated with longer life, fewer heart attacks and strokes, lower risk of diabetes and dementia, "
-        "and more years lived free from chronic disease."
+        "Because cardiovascular disease is the leading cause of death, improving these levers is about longevity, overall mortality, and years lived well."
     ),
     (
-        "After the basic LE8 score, Vital8 offers optional deeper lenses: cardiorespiratory fitness through VO2max and advanced biomarkers "
-        "such as hsCRP and Lp(a). These are exploratory add-ons, not replacements for the LE8 foundation."
+        "Free by design. No supplements. No paywall. No black-box longevity score."
     ),
-    "Free by design. No supplements. No paywall. No black-box longevity score.",
 ]
 
 LANDING_SUBTITLE = LANDING_PARAGRAPHS[0]

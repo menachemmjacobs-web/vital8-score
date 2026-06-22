@@ -41,7 +41,6 @@ EVIDENCE_NOTE = _copy_module.EVIDENCE_NOTE
 LANDING_PARAGRAPHS = _copy_module.LANDING_PARAGRAPHS
 LANDING_TITLE = _copy_module.LANDING_TITLE
 WHAT_THIS_MEASURES = _copy_module.WHAT_THIS_MEASURES
-WHY_SCORE_MATTERS = _copy_module.WHY_SCORE_MATTERS
 
 
 st.set_page_config(page_title="Vital8 Heart Health Score", page_icon="V8", layout="wide", initial_sidebar_state="collapsed")
@@ -138,6 +137,8 @@ def inject_css() -> None:
         }
         .block-container { padding-top: 2rem; max-width: 1180px; }
         h1, h2, h3, h4, h5, h6 { letter-spacing: 0; color: var(--navy); }
+        h1 { font-size: clamp(2.5rem, 5vw, 4.6rem); line-height: .98; margin-bottom: 1.1rem; }
+        h2 { font-size: clamp(1.8rem, 3vw, 2.7rem); line-height: 1.05; }
         [data-testid="stMarkdownContainer"],
         [data-testid="stMarkdownContainer"] p,
         [data-testid="stMarkdownContainer"] li,
@@ -149,35 +150,103 @@ def inject_css() -> None:
         }
         div[data-testid="stTabs"] button { font-size: 1rem; font-weight: 700; }
         .hero {
-          border-radius: 24px;
-          padding: 34px;
-          background: linear-gradient(135deg, var(--surface) 0%, var(--surface-soft) 100%);
+          border-radius: 8px;
+          padding: clamp(28px, 5vw, 54px);
+          background:
+            linear-gradient(135deg, rgba(255,255,255,.98) 0%, rgba(237,248,247,.92) 100%);
           border: 1px solid var(--border);
-          box-shadow: 0 18px 50px rgba(17, 36, 58, .08);
+          box-shadow: 0 14px 38px rgba(17, 36, 58, .07);
+        }
+        .hero p {
+          max-width: 760px;
+          font-size: 1.12rem;
+          line-height: 1.62;
         }
         .card {
-          border-radius: 20px;
-          padding: 22px;
-          background: rgba(255,255,255,.94);
+          border-radius: 8px;
+          padding: 18px;
+          background: var(--surface);
           border: 1px solid var(--border);
-          box-shadow: 0 12px 30px rgba(17, 36, 58, .06);
+          box-shadow: 0 8px 20px rgba(17, 36, 58, .045);
           height: 100%;
         }
         .card h3 {
-          margin: 0 0 12px;
-          font-size: 1.55rem;
-          line-height: 1.16;
+          margin: 0 0 10px;
+          font-size: 1.25rem;
+          line-height: 1.18;
         }
         .card p {
           margin-bottom: 0;
           font-size: 1rem;
           line-height: 1.55;
         }
-        .equal-card { min-height: 190px; }
-        .plan-card { min-height: 210px; }
-        .metric-card { min-height: 185px; }
+        .equal-card { min-height: 142px; }
+        .plan-card { min-height: 175px; }
+        .metric-card { min-height: 158px; }
+        .intro-strip {
+          display: grid;
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          gap: 1px;
+          overflow: hidden;
+          border: 1px solid var(--border);
+          border-radius: 8px;
+          background: var(--border);
+          box-shadow: 0 10px 28px rgba(17, 36, 58, .045);
+        }
+        .intro-item {
+          background: var(--surface);
+          padding: 18px;
+          min-height: 132px;
+        }
+        .intro-item h3 {
+          margin: 0 0 8px;
+          font-size: 1.08rem;
+          line-height: 1.2;
+        }
+        .intro-item p {
+          margin: 0;
+          color: var(--ink-soft);
+          font-size: .96rem;
+          line-height: 1.45;
+        }
+        .evidence-band {
+          display: grid;
+          grid-template-columns: 1.25fr repeat(3, minmax(0, .55fr));
+          gap: 18px;
+          align-items: stretch;
+          padding: 24px;
+          border-radius: 8px;
+          background: #11243a;
+          color: #ffffff;
+          box-shadow: 0 14px 34px rgba(17, 36, 58, .12);
+        }
+        .evidence-band h2,
+        .evidence-band h3,
+        .evidence-band p {
+          color: #ffffff !important;
+        }
+        .evidence-band h2 {
+          margin: 0 0 8px;
+          font-size: clamp(1.55rem, 3vw, 2.25rem);
+        }
+        .evidence-band p {
+          margin: 0;
+          line-height: 1.52;
+          opacity: .88;
+        }
+        .evidence-stat {
+          border-left: 1px solid rgba(255,255,255,.18);
+          padding-left: 18px;
+        }
+        .evidence-stat h3 {
+          margin: 0 0 6px;
+          font-size: 1.55rem;
+        }
+        .evidence-stat p {
+          font-size: .9rem;
+        }
         .author-note {
-          border-radius: 20px;
+          border-radius: 8px;
           padding: 22px;
           background: var(--surface);
           border: 1px solid var(--border);
@@ -200,7 +269,7 @@ def inject_css() -> None:
         .disclaimer {
           border-left: 4px solid var(--teal);
           background: var(--surface);
-          border-radius: 14px;
+          border-radius: 8px;
           padding: 14px 16px;
           color: var(--ink-soft);
         }
@@ -257,6 +326,16 @@ def inject_css() -> None:
           overflow-y: auto;
         }
         @media (max-width: 760px) {
+          .intro-strip,
+          .evidence-band {
+            grid-template-columns: 1fr;
+          }
+          .evidence-stat {
+            border-left: 0;
+            border-top: 1px solid rgba(255,255,255,.18);
+            padding-left: 0;
+            padding-top: 14px;
+          }
           .st-key-vital8_ai_floating {
             right: 12px;
             bottom: 12px;
@@ -275,6 +354,35 @@ def inject_css() -> None:
 def card(title: str, body: str, label: str | None = None, class_name: str = "") -> None:
     label_html = f"<p class='small-label'>{label}</p>" if label else ""
     st.markdown(f"<div class='card {class_name}'>{label_html}<h3>{title}</h3><p class='muted'>{body}</p></div>", unsafe_allow_html=True)
+
+
+def integrated_advanced_score(raw_score: int | None, fitness_adjustment: dict, biomarker_adjustment: dict) -> dict:
+    if raw_score is None:
+        return {"score": None, "delta": None, "fitness_multiplier": None, "biomarker_multiplier": None, "active_lenses": []}
+
+    active_lenses: list[str] = []
+    fitness_multiplier = fitness_adjustment.get("vmq")
+    biomarker_multiplier = biomarker_adjustment.get("combined_multiplier")
+
+    combined = float(raw_score)
+    if fitness_multiplier is not None:
+        combined *= fitness_multiplier
+        active_lenses.append("fitness")
+    if biomarker_multiplier is not None:
+        combined /= biomarker_multiplier
+        active_lenses.append("biomarkers")
+
+    if not active_lenses:
+        return {"score": None, "delta": None, "fitness_multiplier": None, "biomarker_multiplier": None, "active_lenses": []}
+
+    score = round(max(0, min(100, combined)))
+    return {
+        "score": score,
+        "delta": score - raw_score,
+        "fitness_multiplier": fitness_multiplier,
+        "biomarker_multiplier": biomarker_multiplier,
+        "active_lenses": active_lenses,
+    }
 
 
 def optional_number(label: str, known: bool, min_value: float, max_value: float, value: float | None, step: float, help_text: str = "") -> float | None:
@@ -542,7 +650,7 @@ def linked_author_photo() -> str:
 inject_css()
 
 landing_body = "\n".join(
-    f"<p class='muted' style='font-size:1.05rem; max-width:900px;'>{paragraph}</p>"
+    f"<p class='muted'>{paragraph}</p>"
     for paragraph in LANDING_PARAGRAPHS
 )
 
@@ -558,27 +666,60 @@ st.markdown(
 )
 
 st.write("")
-c1, c2 = st.columns(2)
-with c1:
-    card("Start with LE8", "Get a plain-language score across the eight habits and health measures that form your prevention foundation.", "Core calculator", "equal-card")
-with c2:
-    card("Why it matters", "Higher LE8 scores are linked with longer life and fewer years lived with heart, metabolic, and brain disease.", "Evidence base", "equal-card")
-st.write("")
-c3, c4 = st.columns(2)
-with c3:
-    card("Find your biggest lever", "Vital8 highlights the area most likely to move your score, so the next step feels specific instead of vague.", "What you get", "equal-card")
-with c4:
-    card("Go deeper when ready", "Optional research layers explore VO2max, inflammation, and inherited lipid risk after the LE8 foundation.", "Advanced lenses", "equal-card")
+st.markdown(
+    """
+    <section class='intro-strip'>
+      <div class='intro-item'>
+        <p class='small-label'>Step 1</p>
+        <h3>Get your LE8 score</h3>
+        <p>Answer eight everyday health areas in plain language.</p>
+      </div>
+      <div class='intro-item'>
+        <p class='small-label'>Step 2</p>
+        <h3>See what matters most</h3>
+        <p>Vital8 highlights the lever most likely to improve your foundation.</p>
+      </div>
+      <div class='intro-item'>
+        <p class='small-label'>Step 3</p>
+        <h3>Make one clear move</h3>
+        <p>Leave with a practical 30-day focus, not vague advice.</p>
+      </div>
+      <div class='intro-item'>
+        <p class='small-label'>Optional</p>
+        <h3>Add deeper context</h3>
+        <p>VO2max, hsCRP, and Lp(a) can refine the prevention conversation.</p>
+      </div>
+    </section>
+    """,
+    unsafe_allow_html=True,
+)
 
 st.write("")
-st.subheader("Why your score matters")
-st.caption("The science is population-level, not a personal guarantee. But the signal is strong: better cardiovascular health tracks with better long-term outcomes.")
-for start in range(0, len(WHY_SCORE_MATTERS), 2):
-    why_cols = st.columns(2)
-    for col, item in zip(why_cols, WHY_SCORE_MATTERS[start : start + 2]):
-        with col:
-            card(item["title"], item["body"], class_name="equal-card")
-    st.write("")
+st.markdown(
+    f"""
+    <section class='evidence-band'>
+      <div>
+        <h2>Why your score matters</h2>
+        <p>Cardiovascular disease is the leading cause of death. LE8 is a practical way to measure the prevention levers tied to longevity and overall mortality.</p>
+      </div>
+      <div class='evidence-stat'>
+        <h3>8 levers</h3>
+        <p>One score across the habits and measurements that shape prevention.</p>
+      </div>
+      <div class='evidence-stat'>
+        <h3>Longevity</h3>
+        <p>Higher LE8 scores are linked with lower mortality and more healthy years.</p>
+      </div>
+      <div class='evidence-stat'>
+        <h3>Next step</h3>
+        <p>Vital8 turns the score into a focused place to start.</p>
+      </div>
+    </section>
+    """,
+    unsafe_allow_html=True,
+)
+
+st.write("")
 
 st.markdown(f"<div class='disclaimer'>{DISCLAIMER}</div>", unsafe_allow_html=True)
 st.info(WHAT_THIS_MEASURES)
@@ -938,26 +1079,8 @@ with p2:
 with p3:
     card("Clinician or lab goal", plan["clinician_or_lab"], class_name="plan-card")
 
-st.subheader("Your 8 LE8 building blocks")
-for name in DOMAIN_ORDER:
-    result = components[name]
-    score = result["score"]
-    status = status_for_score(score)
-    css_status = status.replace(" ", "-")
-    display_score = "Not entered" if score is None else f"{score}/100"
-    st.markdown(
-        f"""
-        <div class='card'>
-          <p class='small-label'>{name}</p>
-          <h3>{display_score} - <span class='status-{css_status}'>{status}</span></h3>
-          <p class='muted'>{DOMAIN_MEANINGS.get(name, result['explanation'])}</p>
-          <p><strong>Next best step:</strong> {get_domain_recommendation(name, score, raw_inputs)}</p>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-    st.write("")
-
+st.subheader("Score details")
+st.caption("A visual breakdown is here if you want to see which domains are carrying the score.")
 c1, c2 = st.columns(2)
 with c1:
     st.plotly_chart(radar_chart(components), width="stretch", config={"displayModeBar": False})
@@ -1033,16 +1156,13 @@ with st.container(border=True):
     fitness_adjustment = calculate_fitness_adjustment(result_score, fitness_category_key)
 
 if st.session_state.fitness_enabled:
-    c1, c2, c3 = st.columns(3)
+    c1, c2 = st.columns(2)
     with c1:
         category_text = "Enter VO2max or percentile." if fitness_adjustment["category"] is None else fitness_adjustment["category"]["interpretation"]
         card("Fitness category", category_text, "Cardiorespiratory fitness", "metric-card")
     with c2:
-        vmq_text = "Not calculated yet." if fitness_adjustment["vmq"] is None else f"{fitness_adjustment['vmq']:.2f}x fitness lens"
-        card("Fitness lens", vmq_text, "Conceptual modifier", "metric-card")
-    with c3:
-        modified_text = "Not enough LE8 data yet." if fitness_adjustment["modified_score"] is None else f"{fitness_adjustment['modified_score']}/100 after applying the fitness lens"
-        card("Fitness-informed estimate", modified_text, "Exploratory", "metric-card")
+        vmq_text = "Not calculated yet." if fitness_adjustment["vmq"] is None else f"{fitness_adjustment['vmq']:.2f}x applied to the advanced score"
+        card("Fitness lens", vmq_text, "Advanced score input", "metric-card")
 
     if fitness_adjustment["vmq"] is not None:
         vmq = fitness_adjustment["vmq"]
@@ -1120,20 +1240,17 @@ if st.session_state.advanced_enabled:
     moderate_target = required_raw_le8(65, adjustment["combined_multiplier"])
     high_target = required_raw_le8(80, adjustment["combined_multiplier"])
 
-    c1, c2, c3 = st.columns(3)
+    c1, c2 = st.columns(2)
     with c1:
         card(
             "Raw LE8 score",
-            "Not enough LE8 data yet." if result_score is None else f"{result_score}/100 before adding the advanced biomarker lens.",
+            "Not enough LE8 data yet." if result_score is None else f"{result_score}/100 before optional advanced lenses.",
             "Foundation",
             "metric-card",
         )
     with c2:
-        multiplier_text = "Enter hsCRP or Lp(a)." if adjustment["combined_multiplier"] is None else f"{adjustment['combined_multiplier']:.2f}x added context from inflammation and inherited lipid risk."
-        card("Biomarker context", multiplier_text, "Advanced lens", "metric-card")
-    with c3:
-        adjusted_text = "Not calculated yet." if adjustment["adjusted_score"] is None else f"{adjustment['adjusted_score']}/100 after applying the biomarker lens."
-        card("Biomarker-informed estimate", adjusted_text, "Exploratory", "metric-card")
+        multiplier_text = "Enter hsCRP or Lp(a)." if adjustment["combined_multiplier"] is None else f"{adjustment['combined_multiplier']:.2f}x biological drag applied to the advanced score."
+        card("Biomarker lens", multiplier_text, "Advanced score input", "metric-card")
 
     st.subheader(advanced_title)
     st.write(advanced_copy)
@@ -1183,6 +1300,50 @@ if st.session_state.advanced_enabled:
     for step in biomarker_next_steps(adjustment):
         st.write(f"- {step}")
 
+advanced_score = integrated_advanced_score(result_score, fitness_adjustment, adjustment)
+if advanced_score["active_lenses"]:
+    st.divider()
+    st.header("Base vs advanced Vital8 score")
+    st.caption(
+        "The standard LE8 score remains the foundation. The advanced estimate applies any optional fitness and biomarker lenses you entered, in sequence."
+    )
+    a1, a2, a3 = st.columns(3)
+    with a1:
+        card(
+            "Base LE8",
+            "Not enough LE8 data yet." if result_score is None else f"{result_score}/100 from the standard Life's Essential 8 domains.",
+            "Foundation",
+            "metric-card",
+        )
+    with a2:
+        active_text = ", ".join(advanced_score["active_lenses"])
+        card(
+            "Advanced lenses",
+            f"Applied: {active_text}." if active_text else "No optional advanced lens calculated yet.",
+            "What changed",
+            "metric-card",
+        )
+    with a3:
+        if advanced_score["score"] is None:
+            advanced_text = "Enter enough LE8 data and optional lens values to calculate."
+        else:
+            delta = advanced_score["delta"]
+            direction = "higher" if delta > 0 else "lower" if delta < 0 else "unchanged"
+            advanced_text = f"{advanced_score['score']}/100, {abs(delta)} points {direction} than the base LE8 score."
+        card("Advanced Vital8", advanced_text, "Integrated estimate", "metric-card")
+
+    lens_notes: list[str] = []
+    if advanced_score["fitness_multiplier"] is not None:
+        lens_notes.append(f"fitness multiplier {advanced_score['fitness_multiplier']:.2f}x")
+    if advanced_score["biomarker_multiplier"] is not None:
+        lens_notes.append(f"biomarker drag {advanced_score['biomarker_multiplier']:.2f}x")
+    if lens_notes:
+        st.info(
+            "Calculation note: this prototype starts with the base LE8 score, applies "
+            + ", then ".join(lens_notes)
+            + ". This is conceptual and should guide questions, not diagnose risk."
+        )
+
 st.subheader("Learn more about the Vital8 project")
 st.write(
     "For more detail on the methodology, scientific references, white paper development, and future updates, "
@@ -1212,6 +1373,7 @@ with st.container(border=True):
 
 score_summary = build_score_summary(total, components, raw_inputs, plan)
 score_summary["optional_lenses"] = {
+    "integrated_advanced_score": advanced_score,
     "fitness": {
         "enabled": st.session_state.fitness_enabled,
         "method": st.session_state.fitness_method,
