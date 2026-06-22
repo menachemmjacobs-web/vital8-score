@@ -81,19 +81,19 @@ WHY_SCORE_MATTERS = [
 BIOMARKER_EXPLAINERS = [
     {
         "title": "LE8 is the foundation",
-        "body": "Life's Essential 8 captures the habits and standard measurements that shape prevention. hsCRP and Lp(a) ask whether there is extra biological context underneath the same score.",
+        "body": "The core score stays first. Biomarkers add context beneath the same LE8 foundation.",
     },
     {
         "title": "Lp(a) is inherited",
-        "body": "Lp(a), pronounced lipoprotein little-a, is mostly genetic and usually does not move much with lifestyle. If it is elevated, the response is tighter control of the risks you can change.",
+        "body": "Mostly genetic. If elevated, the priority is tighter control of the risks you can change.",
     },
     {
         "title": "hsCRP is inflammation",
-        "body": "hsCRP is a snapshot of inflammatory signaling. It can rise with illness or injury, but persistent elevation may reflect modifiable cardiometabolic or inflammatory burden.",
+        "body": "A snapshot of inflammation. Persistent elevation matters more than a single high value.",
     },
     {
         "title": "The goal is precision",
-        "body": "These labs should not create panic. They help explain why LDL/non-HDL/ApoB, blood pressure, glucose, nicotine avoidance, sleep, activity, and fitness may matter even more.",
+        "body": "Not panic. Better context for LDL, blood pressure, glucose, nicotine, sleep, activity, and fitness.",
     },
 ]
 

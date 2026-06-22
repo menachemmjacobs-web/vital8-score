@@ -180,7 +180,7 @@ def inject_css() -> None:
           font-size: 1rem;
           line-height: 1.55;
         }
-        .equal-card { min-height: 142px; }
+        .equal-card { min-height: 118px; }
         .plan-card { min-height: 175px; }
         .metric-card { min-height: 158px; }
         .intro-strip {
