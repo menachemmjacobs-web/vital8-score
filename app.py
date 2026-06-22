@@ -123,24 +123,41 @@ def inject_css() -> None:
           --amber: #d88a1d;
           --red: #c9473d;
           --bg: #f7f8fa;
+          --surface: #ffffff;
+          --surface-soft: #edf8f7;
+          --border: rgba(17, 36, 58, .12);
           --ink-soft: #556070;
         }
-        .stApp { background: var(--bg); color: var(--navy); }
+        .stApp,
+        [data-testid="stAppViewContainer"],
+        [data-testid="stHeader"] {
+          background: var(--bg);
+          color: var(--navy);
+        }
         .block-container { padding-top: 2rem; max-width: 1180px; }
-        h1, h2, h3 { letter-spacing: 0; color: var(--navy); }
+        h1, h2, h3, h4, h5, h6 { letter-spacing: 0; color: var(--navy); }
+        [data-testid="stMarkdownContainer"],
+        [data-testid="stMarkdownContainer"] p,
+        [data-testid="stMarkdownContainer"] li,
+        [data-testid="stWidgetLabel"],
+        [data-testid="stWidgetLabel"] *,
+        .stCheckbox label,
+        .stRadio label {
+          color: var(--navy) !important;
+        }
         div[data-testid="stTabs"] button { font-size: 1rem; font-weight: 700; }
         .hero {
           border-radius: 24px;
           padding: 34px;
-          background: linear-gradient(135deg, #ffffff 0%, #edf8f7 100%);
-          border: 1px solid rgba(17, 36, 58, .08);
+          background: linear-gradient(135deg, var(--surface) 0%, var(--surface-soft) 100%);
+          border: 1px solid var(--border);
           box-shadow: 0 18px 50px rgba(17, 36, 58, .08);
         }
         .card {
           border-radius: 20px;
           padding: 22px;
-          background: rgba(255,255,255,.92);
-          border: 1px solid rgba(17, 36, 58, .08);
+          background: rgba(255,255,255,.94);
+          border: 1px solid var(--border);
           box-shadow: 0 12px 30px rgba(17, 36, 58, .06);
           height: 100%;
         }
@@ -160,8 +177,8 @@ def inject_css() -> None:
         .author-note {
           border-radius: 20px;
           padding: 22px;
-          background: #ffffff;
-          border: 1px solid rgba(17, 36, 58, .08);
+          background: var(--surface);
+          border: 1px solid var(--border);
           box-shadow: 0 12px 30px rgba(17, 36, 58, .06);
         }
         .small-label {
@@ -180,10 +197,35 @@ def inject_css() -> None:
         .status-Not-entered { color: #697586; font-weight: 800; }
         .disclaimer {
           border-left: 4px solid var(--teal);
-          background: #ffffff;
+          background: var(--surface);
           border-radius: 14px;
           padding: 14px 16px;
           color: var(--ink-soft);
+        }
+        div[data-baseweb="select"] > div,
+        div[data-baseweb="input"] > div,
+        div[data-baseweb="textarea"] > div,
+        input,
+        textarea {
+          background-color: var(--surface) !important;
+          color: var(--navy) !important;
+          border-color: var(--border) !important;
+        }
+        div[data-baseweb="select"] span,
+        div[data-baseweb="select"] svg,
+        input::placeholder,
+        textarea::placeholder {
+          color: var(--ink-soft) !important;
+          fill: var(--ink-soft) !important;
+        }
+        div[data-baseweb="popover"],
+        ul[role="listbox"] {
+          background: var(--surface) !important;
+          color: var(--navy) !important;
+        }
+        ul[role="listbox"] li,
+        div[role="option"] {
+          color: var(--navy) !important;
         }
         .stButton > button {
           border-radius: 999px;
