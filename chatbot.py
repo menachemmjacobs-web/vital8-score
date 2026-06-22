@@ -8,7 +8,12 @@ from typing import Any
 
 import streamlit as st
 
-from content_library import APPROVED_SCOPE, LE8_DOMAIN_EXPLANATIONS, SCORING_METHODOLOGY
+from content_library import (
+    ADVANCED_INTERPRETATION_GUIDE,
+    APPROVED_SCOPE,
+    LE8_DOMAIN_EXPLANATIONS,
+    SCORING_METHODOLOGY,
+)
 from guardrails import detect_red_flags
 
 
@@ -28,7 +33,9 @@ SYSTEM_PROMPT = (
     "fitness are associated with longer life and more disease-free years, but do not estimate the user's personal "
     "life expectancy or promise a specific number of life years gained. Do not diagnose, treat, provide emergency "
     "triage, or recommend medication starts/stops/dose changes. Do not replace medical care. Do not claim Vital8 "
-    "or its advanced layers are validated clinical risk calculators. Keep answers concise, practical, and grounded. "
+    "or its advanced layers are validated clinical risk calculators. If a user says alpha-lipoic acid while asking "
+    "about the advanced lipid biomarker, gently clarify that Vital8 uses Lp(a), lipoprotein little-a, not the "
+    "supplement alpha-lipoic acid. Keep answers concise, practical, and grounded. "
     "Structure most answers as: what this means, what to work on first, and what to discuss with a clinician."
 )
 
@@ -76,6 +83,7 @@ def _compact_context(score_summary: dict[str, Any] | None) -> str:
         "score_summary": summary,
         "approved_scope": APPROVED_SCOPE,
         "scoring_methodology": SCORING_METHODOLOGY,
+        "advanced_interpretation_guide": ADVANCED_INTERPRETATION_GUIDE,
         "domain_explanations": LE8_DOMAIN_EXPLANATIONS,
     }
     return json.dumps(context, ensure_ascii=True, separators=(",", ":"))
