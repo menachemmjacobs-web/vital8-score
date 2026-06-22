@@ -245,6 +245,33 @@ def inject_css() -> None:
         .evidence-stat p {
           font-size: .9rem;
         }
+        .compact-explainer {
+          border-radius: 8px;
+          padding: 16px 18px;
+          background: var(--surface);
+          border: 1px solid var(--border);
+          box-shadow: 0 8px 20px rgba(17, 36, 58, .045);
+        }
+        .compact-explainer-grid {
+          display: grid;
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          gap: 14px;
+        }
+        .compact-explainer-item {
+          border-left: 2px solid rgba(17, 167, 164, .35);
+          padding-left: 12px;
+        }
+        .compact-explainer-item h3 {
+          margin: 0 0 4px;
+          font-size: 1rem;
+          line-height: 1.2;
+        }
+        .compact-explainer-item p {
+          margin: 0;
+          color: var(--ink-soft);
+          font-size: .92rem;
+          line-height: 1.35;
+        }
         .author-note {
           border-radius: 8px;
           padding: 22px;
@@ -327,7 +354,8 @@ def inject_css() -> None:
         }
         @media (max-width: 760px) {
           .intro-strip,
-          .evidence-band {
+          .evidence-band,
+          .compact-explainer-grid {
             grid-template-columns: 1fr;
           }
           .evidence-stat {
@@ -1186,12 +1214,26 @@ st.header("Optional labs: inflammation and inherited cholesterol risk")
 st.caption(
     "Two optional blood tests can add context to your LE8 score: hsCRP for inflammation and Lp(a) for inherited cholesterol risk."
 )
-bio_cols = st.columns(2)
-for index, item in enumerate(BIOMARKER_EXPLAINERS):
-    with bio_cols[index % 2]:
-        card(item["title"], item["body"], class_name="equal-card")
-if bio_cols:
-    st.write("")
+biomarker_items = "".join(
+    f"""
+    <div class='compact-explainer-item'>
+      <h3>{item['title']}</h3>
+      <p>{item['body']}</p>
+    </div>
+    """
+    for item in BIOMARKER_EXPLAINERS
+)
+st.markdown(
+    f"""
+    <div class='compact-explainer'>
+      <div class='compact-explainer-grid'>
+        {biomarker_items}
+      </div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+st.write("")
 st.caption("Conceptual prototype only. Use this to guide better questions, not to diagnose risk or replace clinician-guided care.")
 
 with st.container(border=True):
