@@ -47,10 +47,16 @@ ADVANCED_INTERPRETATION_GUIDE = (
     "move over time and may be influenced by recent infection, injury, chronic inflammatory conditions, adiposity, "
     "sleep, smoking, activity, and cardiometabolic health. A single high hsCRP should be interpreted cautiously, "
     "especially if someone was recently sick. The practical message is to reduce avoidable inflammatory burden "
-    "and discuss persistent elevation with a clinician. When users ask about the advanced score, describe it as "
-    "biological drag or biological tailwind: inherited lipid risk, inflammation, and fitness can change how much "
-    "prevention margin someone appears to have, but the main actions remain evidence-based LE8 habits plus "
-    "clinician-guided risk-factor management."
+    "and discuss persistent elevation with a clinician. When explaining why these biomarkers matter, use the "
+    "foundation-and-context metaphor: LE8 describes the house, while Lp(a) and hsCRP help describe whether the "
+    "house is sitting on especially favorable or less favorable biological ground. Two people can have the same "
+    "LE8 score but different prevention margins if one has high inherited lipid burden or persistent inflammation. "
+    "Avoid frightening phrases like hidden time bomb, danger zone, or cliff. Frame the value as precision and "
+    "actionability: the labs help someone know whether excellent control of LDL/non-HDL/ApoB, blood pressure, "
+    "glucose, nicotine exposure, sleep, activity, body weight, and fitness should be treated as even more important. "
+    "When users ask about the advanced score, describe it as biological drag or biological tailwind: inherited lipid "
+    "risk, inflammation, and fitness can change how much prevention margin someone appears to have, but the main "
+    "actions remain evidence-based LE8 habits plus clinician-guided risk-factor management."
 )
 
 

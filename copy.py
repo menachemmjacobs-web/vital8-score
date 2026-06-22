@@ -82,6 +82,25 @@ WHY_SCORE_MATTERS = [
     },
 ]
 
+BIOMARKER_EXPLAINERS = [
+    {
+        "title": "LE8 is the foundation",
+        "body": "Life's Essential 8 captures the habits and standard measurements that shape prevention. hsCRP and Lp(a) ask whether there is extra biological context underneath the same score.",
+    },
+    {
+        "title": "Lp(a) is inherited",
+        "body": "Lp(a), pronounced lipoprotein little-a, is mostly genetic and usually does not move much with lifestyle. If it is elevated, the response is tighter control of the risks you can change.",
+    },
+    {
+        "title": "hsCRP is inflammation",
+        "body": "hsCRP is a snapshot of inflammatory signaling. It can rise with illness or injury, but persistent elevation may reflect modifiable cardiometabolic or inflammatory burden.",
+    },
+    {
+        "title": "The goal is precision",
+        "body": "These labs should not create panic. They help explain why LDL/non-HDL/ApoB, blood pressure, glucose, nicotine avoidance, sleep, activity, and fitness may matter even more.",
+    },
+]
+
 DOMAIN_COPY = {
     "Daily fuel": "LE8 includes diet because your usual food pattern affects cholesterol, blood pressure, blood sugar, weight, and inflammation. Think about your usual eating pattern over the last few months. There are no perfect answers - we're looking for your typical routine.",
     "Movement": "LE8 gives credit for weekly movement because activity improves blood pressure, insulin sensitivity, sleep, mood, and long-term heart health.",

@@ -34,6 +34,7 @@ _copy_module = importlib.util.module_from_spec(_copy_spec)
 assert _copy_spec and _copy_spec.loader
 _copy_spec.loader.exec_module(_copy_module)
 DISCLAIMER = _copy_module.DISCLAIMER
+BIOMARKER_EXPLAINERS = _copy_module.BIOMARKER_EXPLAINERS
 DOMAIN_COPY = _copy_module.DOMAIN_COPY
 DOMAIN_MEANINGS = _copy_module.DOMAIN_MEANINGS
 EVIDENCE_NOTE = _copy_module.EVIDENCE_NOTE
@@ -1069,6 +1070,12 @@ st.warning(
     "Prototype note: this biomarker layer is conceptual and cross-sectional. Use it to guide better questions and prevention priorities, "
     "not to diagnose disease or replace clinician-guided risk assessment."
 )
+bio_cols = st.columns(2)
+for index, item in enumerate(BIOMARKER_EXPLAINERS):
+    with bio_cols[index % 2]:
+        card(item["title"], item["body"], class_name="equal-card")
+if bio_cols:
+    st.write("")
 
 with st.container(border=True):
     st.markdown("<p class='small-label'>Optional advanced labs</p>", unsafe_allow_html=True)
