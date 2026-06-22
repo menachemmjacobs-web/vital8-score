@@ -50,13 +50,20 @@ In Streamlit Cloud, open the app settings, go to Secrets, and add:
 
 ```toml
 OPENAI_API_KEY = "sk-your-key-here"
+VITAL8_AI_MODEL = "gpt-5.5"
+VITAL8_AI_MODEL_FALLBACKS = "gpt-5.4,gpt-5.4-mini"
+VITAL8_AI_REASONING_EFFORT = "low"
 ```
 
-The default model is configured in `chatbot.py` as `gpt-5-mini`. You can override it locally with:
+The default model is configured in `chatbot.py` as `gpt-5.5`, with fallbacks to `gpt-5.4` and `gpt-5.4-mini` if a project does not have access to the first model. You can override it locally with:
 
 ```bash
-export VITAL8_AI_MODEL="gpt-5-mini"
+export VITAL8_AI_MODEL="gpt-5.4-mini"
+export VITAL8_AI_MODEL_FALLBACKS="gpt-5.4"
+export VITAL8_AI_REASONING_EFFORT="low"
 ```
+
+Ask Vital8 AI is prompted as an educational preventive cardiology coach. It can explain Life's Essential 8, optional VO2max and biomarker context, and general prevention priorities. It can discuss population-level associations between better cardiovascular health and longer disease-free life, but it should not promise a personal number of life years gained or replace clinician-guided medical care.
 
 ## Notes
 
