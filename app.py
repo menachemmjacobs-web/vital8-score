@@ -459,20 +459,32 @@ st.markdown(
 st.write("")
 c1, c2 = st.columns(2)
 with c1:
-    card("Eight factors", "Eating pattern, movement, nicotine, sleep, body size, cholesterol, blood sugar, and blood pressure.", "LE8 framework", "equal-card")
+    card("Start with LE8", "Get a plain-language score across the eight habits and health measures that form your prevention foundation.", "Core calculator", "equal-card")
 with c2:
-    card("One 0-100 score", "Each entered area is scored from 0 to 100. Your Vital8 score is the average.", "How scoring works", "equal-card")
+    card("Why it matters", "Higher LE8 scores are linked with longer life and fewer years lived with heart, metabolic, and brain disease.", "Evidence base", "equal-card")
 st.write("")
 c3, c4 = st.columns(2)
 with c3:
-    card("Actionable next step", "The goal is not perfection. It is finding the highest-impact area to improve first.", "What you get", "equal-card")
+    card("Find your biggest lever", "Vital8 highlights the area most likely to move your score, so the next step feels specific instead of vague.", "What you get", "equal-card")
 with c4:
-    card("Free by design", "Built to share useful prevention science, not to sell you a supplement, subscription, or hidden upgrade.", "No gatekeeping", "equal-card")
+    card("Go deeper when ready", "Optional research layers explore VO2max, inflammation, and inherited lipid risk after the LE8 foundation.", "Advanced lenses", "equal-card")
 
 st.write("")
 st.markdown(f"<div class='disclaimer'>{DISCLAIMER}</div>", unsafe_allow_html=True)
 st.info(WHAT_THIS_MEASURES)
 st.caption(EVIDENCE_NOTE)
+
+with st.expander("Learn more about Vital8 and why it was built"):
+    st.write(
+        "I'm Menachem Jacobs, MD, MPH, an Internal Medicine resident and "
+        "[preventive cardiology researcher](https://pubmed.ncbi.nlm.nih.gov/?term=menachem+jacobs&sort=date). "
+        "I built Vital8 because prevention often fails at the translation step: people hear that lifestyle and risk factors matter, "
+        "but they do not always know where they stand or which change would help most."
+    )
+    st.write(
+        "Vital8 is meant to be a free, evidence-based starting point. The standard LE8 score comes first. "
+        "The VO2max and biomarker sections are optional exploratory layers for people who want a more refined prevention conversation."
+    )
 
 st.divider()
 st.header("Your LE8 assessment")
@@ -774,7 +786,7 @@ strengths = [(name, result) for name, result in components.items() if result["sc
 
 st.header("Your Vital8 LE8 score")
 if total["known_count"] < 5:
-    st.warning(f"Enter at least 5 of 8 areas to calculate a useful LE8 snapshot. You have entered {total['known_count']}.")
+    st.warning(f"Enter at least 5 of 8 areas to see a useful LE8 snapshot. You have entered {total['known_count']}.")
 
 c1, c2 = st.columns([1, 1.15])
 with c1:
@@ -782,7 +794,7 @@ with c1:
 with c2:
     st.markdown("<p class='small-label'>Life's Essential 8 snapshot</p>", unsafe_allow_html=True)
     st.markdown(f"<div class='score-number'>{result_score if result_score is not None else '--'}</div>", unsafe_allow_html=True)
-    partial = f"Partial score based on {total['known_count']} of 8 LE8 domains." if total["is_partial"] else "Complete score based on all 8 LE8 domains."
+    partial = f"Snapshot based on {total['known_count']} of 8 areas." if total["is_partial"] else "Complete score based on all 8 areas."
     st.subheader(category)
     st.write(category_copy)
     st.caption("Low is below 50, moderate is 50-79, and high is 80-100. This score is educational and depends on the information you entered.")
@@ -801,7 +813,7 @@ with c1:
         st.caption("Your strengths will appear here as more LE8 areas reach 80 or higher.")
 with c2:
     st.subheader("Your biggest levers")
-    st.caption("These are the areas most likely to move your LE8 score if you focus on them first.")
+    st.caption("These are the areas most likely to improve your foundation if you focus on them first.")
     for name, result in top:
         st.warning(f"{name}: {result['score']}/100 - {estimate_gain(name, result['score'], raw_inputs)}")
 
@@ -846,14 +858,14 @@ with st.expander("Technical component details"):
     st.dataframe(component_dataframe(components, raw_inputs), width="stretch", hide_index=True)
 
 st.divider()
-st.header("Vital8 Fitness: VO2max quotient")
+st.header("Optional deeper lens: fitness")
 st.caption(
-    "Your standard LE8 score stays intact. This optional layer asks whether cardiorespiratory fitness, measured or estimated by VO2max, "
-    "should amplify or attenuate the interpretation of the LE8 score."
+    "Your LE8 score is still the foundation. This optional section adds cardiorespiratory fitness, often estimated by VO2max, "
+    "because fitness is independently associated with longevity and can reveal information that activity minutes alone may miss."
 )
 st.warning(
-    "Conceptual caveat: this VO2max quotient is an experimental Vital8 framework. It is not a validated clinical calculator, "
-    "and the simplified percentile estimate should not replace formal exercise testing or clinician-guided interpretation."
+    "Prototype note: this is a conceptual Vital8 lens, not a validated clinical calculator. It is meant to support education and better questions, "
+    "not replace formal exercise testing or clinician-guided interpretation."
 )
 
 with st.container(border=True):
@@ -914,30 +926,39 @@ if st.session_state.fitness_enabled:
     c1, c2, c3 = st.columns(3)
     with c1:
         category_text = "Enter VO2max or percentile." if fitness_adjustment["category"] is None else fitness_adjustment["category"]["interpretation"]
-        card("Fitness category", category_text, "CRF", "metric-card")
+        card("Fitness category", category_text, "Cardiorespiratory fitness", "metric-card")
     with c2:
-        vmq_text = "Not calculated yet." if fitness_adjustment["vmq"] is None else f"{fitness_adjustment['vmq']:.2f}x LE8 modifier"
-        card("VO2max quotient", vmq_text, "VMQ", "metric-card")
+        vmq_text = "Not calculated yet." if fitness_adjustment["vmq"] is None else f"{fitness_adjustment['vmq']:.2f}x fitness lens"
+        card("Fitness lens", vmq_text, "Conceptual modifier", "metric-card")
     with c3:
-        modified_text = "Not enough LE8 data yet." if fitness_adjustment["modified_score"] is None else f"{fitness_adjustment['modified_score']}/100 conceptual fitness-modified estimate"
-        card("Fitness-modified LE8", modified_text, "Exploratory", "metric-card")
+        modified_text = "Not enough LE8 data yet." if fitness_adjustment["modified_score"] is None else f"{fitness_adjustment['modified_score']}/100 after applying the fitness lens"
+        card("Fitness-informed estimate", modified_text, "Exploratory", "metric-card")
 
     if fitness_adjustment["vmq"] is not None:
+        vmq = fitness_adjustment["vmq"]
+        if vmq > 1:
+            direction = "adds some credit to"
+            meaning = "your fitness level appears to give you extra margin on top of your LE8 foundation"
+        elif vmq < 1:
+            direction = "pulls down"
+            meaning = "your fitness level may be a sign that your LE8 foundation has less margin than it looks like on paper"
+        else:
+            direction = "does not change"
+            meaning = "your fitness level is not changing the LE8 interpretation much in this model"
         st.info(
-            f"In this prototype, VMQ = 0.80 + 0.004 x CRF score. "
-            f"Your CRF score is {fitness_adjustment['crf_score']}/100, so the multiplier is {fitness_adjustment['vmq']:.2f}. "
-            "This preserves the raw LE8 score while showing how measured fitness could change interpretation."
+            f"Think of this as a fitness lens on top of your regular LE8 score. "
+            f"Your estimated fitness score is {fitness_adjustment['crf_score']}/100, which {direction} the LE8 result by about {abs(vmq - 1) * 100:.0f}%. "
+            f"In plain English: {meaning}. Your original LE8 score is still the main score."
         )
 
 st.divider()
-st.header("Vital8 Advanced: biological drag")
+st.header("Optional deeper lens: biomarkers")
 st.caption(
-    "Your LE8 score stays exactly as-is. This optional layer asks a different question: is there extra biological drag "
-    "from inflammation or inherited Lp(a) that makes the same LE8 score carry a different prevention meaning?"
+    "Your LE8 score stays exactly as-is. This optional section asks whether inflammation or inherited lipid risk might change how much prevention margin you have."
 )
 st.warning(
-    "Important caveat: this is a cross-sectional, conceptual Vital8 framework synthesized from published risk gradients. "
-    "It is not a validated clinical calculator. Use it to guide better questions and prevention priorities, not to diagnose or replace clinician-guided risk assessment."
+    "Prototype note: this biomarker layer is conceptual and cross-sectional. Use it to guide better questions and prevention priorities, "
+    "not to diagnose disease or replace clinician-guided risk assessment."
 )
 
 with st.container(border=True):
@@ -991,20 +1012,20 @@ if st.session_state.advanced_enabled:
             "metric-card",
         )
     with c2:
-        multiplier_text = "Enter hsCRP or Lp(a)." if adjustment["combined_multiplier"] is None else f"{adjustment['combined_multiplier']:.2f}x estimated biological drag from inflammation and inherited lipid risk."
-        card("Biological drag", multiplier_text, "Vital8 Advanced", "metric-card")
+        multiplier_text = "Enter hsCRP or Lp(a)." if adjustment["combined_multiplier"] is None else f"{adjustment['combined_multiplier']:.2f}x added context from inflammation and inherited lipid risk."
+        card("Biomarker context", multiplier_text, "Advanced lens", "metric-card")
     with c3:
-        adjusted_text = "Not calculated yet." if adjustment["adjusted_score"] is None else f"{adjustment['adjusted_score']}/100 after applying the conceptual biomarker lens."
-        card("Adjusted estimate", adjusted_text, "Exploratory", "metric-card")
+        adjusted_text = "Not calculated yet." if adjustment["adjusted_score"] is None else f"{adjustment['adjusted_score']}/100 after applying the biomarker lens."
+        card("Biomarker-informed estimate", adjusted_text, "Exploratory", "metric-card")
 
     st.subheader(advanced_title)
     st.write(advanced_copy)
 
     if adjustment["combined_multiplier"] is not None:
         st.info(
-            f"Estimated biological drag: {adjustment['penalty_percent']}%. "
-            f"In this prototype, the adjusted estimate is calculated as raw LE8 divided by {adjustment['combined_multiplier']:.2f}. "
-            "This does not mean your LE8 work is erased. It means the margin for LDL/non-HDL/ApoB, blood pressure, glucose, nicotine exposure, sleep, and activity is narrower."
+            f"Think of this as a biomarker lens on top of your regular LE8 score. "
+            f"In this prototype, the biomarkers entered suggest about {adjustment['penalty_percent']}% less prevention margin. "
+            "That does not erase your LE8 work. It means keeping LDL/non-HDL/ApoB, blood pressure, glucose, nicotine exposure, sleep, and activity in a favorable range may matter even more."
         )
         if moderate_target is not None and high_target is not None:
             moderate_copy = f"{moderate_target}/100" if moderate_target <= 100 else "above 100, not achievable by LE8 alone"

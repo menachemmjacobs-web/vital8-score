@@ -25,27 +25,21 @@ LANDING_TITLE = "Know Your Heart Health Score"
 
 LANDING_PARAGRAPHS = [
     (
-        "I'm Menachem Jacobs, MD, MPH, an Internal Medicine resident and "
-        "<a href='https://pubmed.ncbi.nlm.nih.gov/?term=menachem+jacobs&sort=date' target='_blank' rel='noopener noreferrer'>preventive cardiology researcher</a>. "
-        "I created Vital8 because one of the biggest challenges in medicine is not discovering what improves health - "
-        "we often already know that. The challenge is helping people understand where they stand and what to do next."
+        "Vital8 starts with a simple question: how strong is your cardiovascular health foundation today?"
     ),
     (
-        "Vital8 is a free cardiovascular health assessment built from the American Heart Association's Life's Essential 8 "
-        "framework, one of the most extensively studied measures of cardiovascular health. Decades of research involving "
-        "millions of individuals have shown that better cardiovascular health is associated with longer life, fewer heart "
-        "attacks and strokes, lower rates of diabetes and dementia, and more years lived free from chronic disease."
+        "The core score is based on the American Heart Association's Life's Essential 8: nutrition, activity, nicotine exposure, "
+        "sleep, body size, cholesterol, blood sugar, and blood pressure."
     ),
     (
-        "A lot of modern health products make longevity feel expensive, proprietary, and confusing. Vital8 starts from a "
-        "different belief: some of the most powerful prevention tools should be understandable, evidence-based, and freely available."
+        "Higher LE8 scores have been associated with longer life, fewer heart attacks and strokes, lower risk of diabetes and dementia, "
+        "and more years lived free from chronic disease."
     ),
     (
-        "This assessment translates prevention science into a simple, actionable score built around the habits and health factors "
-        "that matter most: nutrition, physical activity, sleep, nicotine exposure, body weight, cholesterol, blood sugar, and blood pressure. "
-        "The goal is not perfection. The goal is identifying the next change most likely to improve long-term health."
+        "After the basic LE8 score, Vital8 offers optional deeper lenses: cardiorespiratory fitness through VO2max and advanced biomarkers "
+        "such as hsCRP and Lp(a). These are exploratory add-ons, not replacements for the LE8 foundation."
     ),
-    "No supplements to sell. No paywall. No mystery algorithm. Just the best available science, presented in a way that helps people take action.",
+    "Free by design. No supplements. No paywall. No black-box longevity score.",
 ]
 
 LANDING_SUBTITLE = LANDING_PARAGRAPHS[0]
@@ -56,9 +50,8 @@ DISCLAIMER = (
 )
 
 WHAT_THIS_MEASURES = (
-    "Life's Essential 8, or LE8, scores eight areas: eating pattern, physical activity, nicotine exposure, "
-    "sleep, body size, cholesterol, blood sugar, and blood pressure. Each area is scored from 0 to 100, "
-    "and the total score is the average of the areas you enter."
+    "Life's Essential 8, or LE8, scores eight areas that are strongly tied to long-term heart and metabolic health. "
+    "Each area is scored from 0 to 100, and your total score is the average of the areas you enter."
 )
 
 LE8_INTRO = (
@@ -67,9 +60,7 @@ LE8_INTRO = (
 )
 
 EVIDENCE_NOTE = (
-    "Large population studies link higher LE8 scores with longer life, fewer years lived with chronic disease, "
-    "and lower risk of heart disease, stroke, and dementia. This is not a diagnosis or a product pitch. It is a "
-    "plain-language guide to what is worth measuring, protecting, and improving next."
+    "The goal is not to be perfect. The goal is to see which lever is most worth improving next."
 )
 
 DOMAIN_COPY = {
