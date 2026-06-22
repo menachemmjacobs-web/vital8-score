@@ -20,3 +20,13 @@ APPROVED_SCOPE = (
     "general lifestyle concepts, home measurement, and clinician discussion topics. It is not a diagnosis, "
     "treatment plan, emergency triage tool, or validated clinical risk calculator."
 )
+
+
+SCORING_METHODOLOGY = (
+    "The core Vital8 score is an educational LE8-style score from 0 to 100. It averages the available domain "
+    "scores across Daily fuel, Movement, Nicotine, Sleep rhythm, Body size, Cholesterol particles, Blood sugar, "
+    "and Blood pressure when enough domains are entered. Missing labs can produce a partial score. Diet and "
+    "nicotine are consumer-facing approximations designed to align with the spirit of AHA Life's Essential 8, "
+    "not exact clinical recalls. Optional VO2max/cardiorespiratory fitness and hsCRP/Lp(a) sections are "
+    "exploratory interpretive lenses that do not replace the raw LE8 score and are not validated risk calculators."
+)

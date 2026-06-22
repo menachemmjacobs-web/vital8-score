@@ -52,6 +52,7 @@ def build_score_summary(total: dict, components: dict, raw_inputs: dict, next_st
         "domain_scores": domain_scores,
         "strengths": strengths,
         "biggest_levers": biggest_levers,
+        "entered_values": raw_inputs,
         "next_steps": next_steps or {},
         "recommendations": recommendations,
     }

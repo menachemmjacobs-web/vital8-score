@@ -8,7 +8,7 @@ from typing import Any
 
 import streamlit as st
 
-from content_library import APPROVED_SCOPE, LE8_DOMAIN_EXPLANATIONS
+from content_library import APPROVED_SCOPE, LE8_DOMAIN_EXPLANATIONS, SCORING_METHODOLOGY
 from guardrails import detect_red_flags
 
 
@@ -75,6 +75,7 @@ def _compact_context(score_summary: dict[str, Any] | None) -> str:
     context = {
         "score_summary": summary,
         "approved_scope": APPROVED_SCOPE,
+        "scoring_methodology": SCORING_METHODOLOGY,
         "domain_explanations": LE8_DOMAIN_EXPLANATIONS,
     }
     return json.dumps(context, ensure_ascii=True, separators=(",", ":"))
@@ -204,26 +205,22 @@ def _render_chat_messages(limit: int | None = None) -> None:
             st.write(message["content"])
 
 
-def render_chatbot(score_summary: dict[str, Any] | None, *, sidebar: bool = True) -> None:
+def render_chatbot(score_summary: dict[str, Any] | None) -> None:
     _ensure_chat_messages()
     api_key = _api_key()
-    container = st.sidebar if sidebar else st.container()
-
-    with container:
-        if not sidebar:
-            st.divider()
-        st.header("Ask Vital8 AI")
-        st.caption(
-            "A side companion for questions about your score, LE8, VO2max, biomarkers, and prevention priorities. "
-            "Educational only; not a substitute for medical care."
-        )
-
-        if not api_key:
-            st.info(
-                "AI chat is not configured yet. Add OPENAI_API_KEY in Streamlit secrets or as a local environment variable to enable it."
+    with st.container(key="vital8_ai_floating"):
+        with st.popover("Ask Vital8 AI", icon=":material/forum:", use_container_width=True):
+            st.subheader("Vital8 AI")
+            st.caption(
+                "Ask about your current entries, score, LE8 domains, VO2max, biomarkers, and prevention priorities. "
+                "Educational only; not a substitute for medical care."
             )
 
-        with st.expander("Chat panel", expanded=True):
+            if not api_key:
+                st.info(
+                    "AI chat is not configured yet. Add OPENAI_API_KEY in Streamlit secrets or as a local environment variable to enable it."
+                )
+
             with st.form("vital8_ai_sidebar_form", clear_on_submit=True):
                 user_message = st.text_area(
                     "Ask while you fill this out",
@@ -237,7 +234,7 @@ def render_chatbot(score_summary: dict[str, Any] | None, *, sidebar: bool = True
                 with st.spinner("Thinking..."):
                     _answer_user_message(score_summary, user_message)
 
-            _render_chat_messages(limit=6 if sidebar else None)
+            _render_chat_messages(limit=6)
 
             if st.button("Clear chat", key="clear_vital8_chat", use_container_width=True):
                 del st.session_state.vital8_chat_messages

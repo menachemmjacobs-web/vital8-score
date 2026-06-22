@@ -42,7 +42,7 @@ LANDING_TITLE = _copy_module.LANDING_TITLE
 WHAT_THIS_MEASURES = _copy_module.WHAT_THIS_MEASURES
 
 
-st.set_page_config(page_title="Vital8 Heart Health Score", page_icon="V8", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(page_title="Vital8 Heart Health Score", page_icon="V8", layout="wide", initial_sidebar_state="collapsed")
 
 
 DOMAIN_ORDER = [
@@ -235,6 +235,35 @@ def inject_css() -> None:
           font-weight: 800;
           padding: .75rem 1.2rem;
         }
+        .st-key-vital8_ai_floating {
+          position: fixed;
+          right: 22px;
+          bottom: 22px;
+          z-index: 9999;
+          width: min(220px, calc(100vw - 32px));
+          pointer-events: none;
+        }
+        .st-key-vital8_ai_floating > div {
+          pointer-events: auto;
+        }
+        .st-key-vital8_ai_floating button {
+          box-shadow: 0 14px 40px rgba(17, 36, 58, .22);
+        }
+        div[data-testid="stPopoverBody"] {
+          width: min(420px, calc(100vw - 32px));
+          max-height: min(720px, calc(100vh - 120px));
+          overflow-y: auto;
+        }
+        @media (max-width: 760px) {
+          .st-key-vital8_ai_floating {
+            right: 12px;
+            bottom: 12px;
+            width: calc(100vw - 24px);
+          }
+          .st-key-vital8_ai_floating button {
+            width: 100%;
+          }
+        }
         </style>
         """,
         unsafe_allow_html=True,
@@ -375,11 +404,39 @@ def collect_scores() -> tuple[dict, dict]:
         "age": st.session_state.age,
         "sex": st.session_state.sex,
         "bmi": bmi,
+        "diet": {
+            "fruit_veg": st.session_state.fruit_veg,
+            "whole_grains": st.session_state.whole_grains,
+            "sugary_drinks": st.session_state.sugary_drinks,
+            "processed_food": st.session_state.processed_food,
+            "healthy_proteins": st.session_state.healthy_proteins,
+            "fish_seafood": st.session_state.fish_seafood,
+            "nuts_legumes": st.session_state.nuts_legumes,
+            "sodium_foods": st.session_state.sodium_foods,
+        },
+        "nicotine": {
+            "current_use": st.session_state.nicotine_current_use,
+            "former_status": st.session_state.nicotine_former_status,
+            "quit_timing": st.session_state.nicotine_quit_timing,
+            "secondhand_exposure": st.session_state.secondhand_exposure_status,
+        },
+        "height_inches": height_inches,
+        "weight_lbs": st.session_state.weight_lbs,
         "sleep_hours": st.session_state.sleep_hours,
+        "moderate_minutes": st.session_state.moderate_minutes,
+        "vigorous_minutes": st.session_state.vigorous_minutes,
         "activity_equivalent": activity.get("equivalent_minutes", 0),
         "known_lipids": st.session_state.knows_lipids,
+        "total_cholesterol": st.session_state.total_chol if st.session_state.knows_lipids else None,
+        "hdl_cholesterol": st.session_state.hdl if st.session_state.knows_lipids else None,
+        "non_hdl_cholesterol": lipids.get("non_hdl"),
         "known_bp": st.session_state.knows_bp,
+        "systolic_bp": st.session_state.sbp if st.session_state.knows_bp else None,
+        "diastolic_bp": st.session_state.dbp if st.session_state.knows_bp else None,
+        "bp_treated": st.session_state.bp_treated,
         "glucose_method": st.session_state.glucose_method,
+        "glucose_value": glucose_value,
+        "has_diabetes": st.session_state.has_diabetes,
     }
     return components, raw
 
@@ -1039,8 +1096,9 @@ with st.container(border=True):
                 st.session_state.lpa = None
                 st.info("Lp(a) is often measured once because it is mostly genetically determined.")
 
+adjustment = calculate_biomarker_adjustment(result_score, st.session_state.hs_crp, st.session_state.lpa)
+
 if st.session_state.advanced_enabled:
-    adjustment = calculate_biomarker_adjustment(result_score, st.session_state.hs_crp, st.session_state.lpa)
     advanced_title, advanced_copy = advanced_category(adjustment["adjusted_score"])
     moderate_target = required_raw_le8(65, adjustment["combined_multiplier"])
     high_target = required_raw_le8(80, adjustment["combined_multiplier"])
@@ -1136,4 +1194,20 @@ with st.container(border=True):
         )
 
 score_summary = build_score_summary(total, components, raw_inputs, plan)
+score_summary["optional_lenses"] = {
+    "fitness": {
+        "enabled": st.session_state.fitness_enabled,
+        "method": st.session_state.fitness_method,
+        "vo2max": st.session_state.vo2max if st.session_state.fitness_enabled else None,
+        "crf_percentile_category": fitness_category_key,
+        "estimated_category": fitness_estimate,
+        "adjustment": fitness_adjustment,
+    },
+    "biomarkers": {
+        "enabled": st.session_state.advanced_enabled,
+        "hs_crp": st.session_state.hs_crp if st.session_state.advanced_enabled else None,
+        "lpa": st.session_state.lpa if st.session_state.advanced_enabled else None,
+        "adjustment": adjustment,
+    },
+}
 render_chatbot(score_summary)
