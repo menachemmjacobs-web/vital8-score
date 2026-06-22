@@ -80,20 +80,20 @@ WHY_SCORE_MATTERS = [
 
 BIOMARKER_EXPLAINERS = [
     {
-        "title": "LE8 is the foundation",
-        "body": "The core score stays first. Biomarkers add context beneath the same LE8 foundation.",
+        "title": "Start with LE8",
+        "body": "Your main score stays the foundation.",
     },
     {
-        "title": "Lp(a) is inherited",
-        "body": "Mostly genetic. If elevated, the priority is tighter control of the risks you can change.",
+        "title": "Lp(a)",
+        "body": "An inherited cholesterol risk signal.",
     },
     {
-        "title": "hsCRP is inflammation",
-        "body": "A snapshot of inflammation. Persistent elevation matters more than a single high value.",
+        "title": "hsCRP",
+        "body": "A snapshot of inflammation.",
     },
     {
-        "title": "The goal is precision",
-        "body": "Not panic. Better context for LDL, blood pressure, glucose, nicotine, sleep, activity, and fitness.",
+        "title": "Why it matters",
+        "body": "These labs can make prevention targets more important.",
     },
 ]
 

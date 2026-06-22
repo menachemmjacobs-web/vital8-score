@@ -1182,13 +1182,9 @@ if st.session_state.fitness_enabled:
         )
 
 st.divider()
-st.header("Optional deeper lens: biomarkers")
+st.header("Optional labs: inflammation and inherited cholesterol risk")
 st.caption(
-    "Your LE8 score stays exactly as-is. This optional section asks whether inflammation or inherited lipid risk might change how much prevention margin you have."
-)
-st.warning(
-    "Prototype note: this biomarker layer is conceptual and cross-sectional. Use it to guide better questions and prevention priorities, "
-    "not to diagnose disease or replace clinician-guided risk assessment."
+    "Two optional blood tests can add context to your LE8 score: hsCRP for inflammation and Lp(a) for inherited cholesterol risk."
 )
 bio_cols = st.columns(2)
 for index, item in enumerate(BIOMARKER_EXPLAINERS):
@@ -1196,6 +1192,7 @@ for index, item in enumerate(BIOMARKER_EXPLAINERS):
         card(item["title"], item["body"], class_name="equal-card")
 if bio_cols:
     st.write("")
+st.caption("Conceptual prototype only. Use this to guide better questions, not to diagnose risk or replace clinician-guided care.")
 
 with st.container(border=True):
     st.markdown("<p class='small-label'>Optional advanced labs</p>", unsafe_allow_html=True)
