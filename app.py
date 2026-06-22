@@ -42,7 +42,7 @@ LANDING_TITLE = _copy_module.LANDING_TITLE
 WHAT_THIS_MEASURES = _copy_module.WHAT_THIS_MEASURES
 
 
-st.set_page_config(page_title="Vital8 Heart Health Score", page_icon="V8", layout="wide")
+st.set_page_config(page_title="Vital8 Heart Health Score", page_icon="V8", layout="wide", initial_sidebar_state="expanded")
 
 
 DOMAIN_ORDER = [

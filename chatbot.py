@@ -162,14 +162,7 @@ def _openai_error_message(error: Exception) -> str:
     return "I could not reach the AI service right now. Check the Streamlit app logs for the OpenAI error, then try again."
 
 
-def render_chatbot(score_summary: dict[str, Any] | None) -> None:
-    st.divider()
-    st.header("Ask Vital8 AI")
-    st.caption(
-        "Ask general questions about your Vital8 score, Life's Essential 8, VO2max, biomarkers, prevention priorities, "
-        "or what to discuss with your clinician. This is educational only and does not replace medical care."
-    )
-
+def _ensure_chat_messages() -> None:
     if "vital8_chat_messages" not in st.session_state:
         st.session_state.vital8_chat_messages = [
             {
@@ -178,35 +171,75 @@ def render_chatbot(score_summary: dict[str, Any] | None) -> None:
             }
         ]
 
-    for message in st.session_state.vital8_chat_messages:
-        with st.chat_message(message["role"]):
-            st.write(message["content"])
 
+def _answer_user_message(score_summary: dict[str, Any] | None, user_message: str) -> None:
     api_key = _api_key()
-    if not api_key:
-        st.info(
-            "AI chat is not configured yet. Add OPENAI_API_KEY in Streamlit secrets or as a local environment variable to enable it."
-        )
-
-    user_message = st.chat_input("Ask about your Vital8 score or Life's Essential 8")
-    if not user_message:
+    cleaned_message = user_message.strip()
+    if not cleaned_message:
         return
 
-    st.session_state.vital8_chat_messages.append({"role": "user", "content": user_message})
-    with st.chat_message("user"):
-        st.write(user_message)
+    st.session_state.vital8_chat_messages.append({"role": "user", "content": cleaned_message})
 
-    guardrail = detect_red_flags(user_message)
+    guardrail = detect_red_flags(cleaned_message)
     if guardrail["blocked"]:
         assistant_text = str(guardrail["message"])
     elif not api_key:
         assistant_text = "AI chat is not configured yet. Add an OpenAI API key to enable responses."
     else:
         try:
-            assistant_text = _call_openai(api_key, score_summary, user_message)
+            assistant_text = _call_openai(api_key, score_summary, cleaned_message)
         except Exception as error:
             assistant_text = _openai_error_message(error)
 
     st.session_state.vital8_chat_messages.append({"role": "assistant", "content": assistant_text})
-    with st.chat_message("assistant"):
-        st.write(assistant_text)
+
+
+def _render_chat_messages(limit: int | None = None) -> None:
+    messages = st.session_state.vital8_chat_messages
+    shown_messages = messages[-limit:] if limit else messages
+    if limit and len(messages) > limit:
+        st.caption(f"Showing the most recent {limit} messages.")
+    for message in shown_messages:
+        with st.chat_message(message["role"]):
+            st.write(message["content"])
+
+
+def render_chatbot(score_summary: dict[str, Any] | None, *, sidebar: bool = True) -> None:
+    _ensure_chat_messages()
+    api_key = _api_key()
+    container = st.sidebar if sidebar else st.container()
+
+    with container:
+        if not sidebar:
+            st.divider()
+        st.header("Ask Vital8 AI")
+        st.caption(
+            "A side companion for questions about your score, LE8, VO2max, biomarkers, and prevention priorities. "
+            "Educational only; not a substitute for medical care."
+        )
+
+        if not api_key:
+            st.info(
+                "AI chat is not configured yet. Add OPENAI_API_KEY in Streamlit secrets or as a local environment variable to enable it."
+            )
+
+        with st.expander("Chat panel", expanded=True):
+            with st.form("vital8_ai_sidebar_form", clear_on_submit=True):
+                user_message = st.text_area(
+                    "Ask while you fill this out",
+                    placeholder="Example: What should I focus on first?",
+                    height=90,
+                    key="vital8_ai_sidebar_prompt",
+                )
+                submitted = st.form_submit_button("Ask Vital8 AI", use_container_width=True)
+
+            if submitted:
+                with st.spinner("Thinking..."):
+                    _answer_user_message(score_summary, user_message)
+
+            _render_chat_messages(limit=6 if sidebar else None)
+
+            if st.button("Clear chat", key="clear_vital8_chat", use_container_width=True):
+                del st.session_state.vital8_chat_messages
+                _ensure_chat_messages()
+                st.rerun()
