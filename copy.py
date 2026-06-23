@@ -21,20 +21,20 @@ copy = _stdlib_copy.copy
 deepcopy = _stdlib_copy.deepcopy
 Error = _stdlib_copy.Error
 
-LANDING_TITLE = "Know Your Heart Health Score"
+LANDING_TITLE = "Your heart health, made clear."
 
 LANDING_PARAGRAPHS = [
     (
-        "One number. Eight levers. A practical snapshot of your prevention foundation."
+        "Eight levers. One evidence-based score. One practical next step."
     ),
     (
-        "Built around the American Heart Association's Life's Essential 8: nutrition, activity, nicotine exposure, sleep, body size, cholesterol, blood sugar, and blood pressure."
+        "Based on the American Heart Association's Life's Essential 8, Vital8 turns prevention science into something you can actually use."
     ),
     (
-        "Because cardiovascular disease is the leading cause of death, improving these levers is about longevity, overall mortality, and years lived well."
+        "The goal is not a perfect score. The goal is knowing where you stand, what matters most, and what to work on next."
     ),
     (
-        "Free by design. No supplements. No paywall. No black-box longevity score."
+        "Always free. No supplements. No paywall. No black-box longevity score."
     ),
 ]
 
@@ -46,7 +46,7 @@ DISCLAIMER = (
 )
 
 WHAT_THIS_MEASURES = (
-    "Life's Essential 8, or LE8, scores eight areas that are strongly tied to long-term heart and metabolic health. "
+    "Life's Essential 8, or LE8, scores the eight habits and health numbers most tied to long-term cardiovascular health. "
     "Each area is scored from 0 to 100, and your total score is the average of the areas you enter."
 )
 
@@ -56,7 +56,7 @@ LE8_INTRO = (
 )
 
 EVIDENCE_NOTE = (
-    "The goal is not to be perfect. The goal is to see which lever is most worth improving next."
+    "A score that means something. A next step you can understand."
 )
 
 WHY_SCORE_MATTERS = [

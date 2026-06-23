@@ -767,7 +767,7 @@ landing_body = "\n".join(
 st.markdown(
     f"""
     <section class='hero'>
-      <p class='small-label'>Life's Essential 8 assessment</p>
+      <p class='small-label'>Based on AHA Life's Essential 8</p>
       <h1>{LANDING_TITLE}</h1>
       {landing_body}
     </section>
@@ -780,24 +780,24 @@ st.markdown(
     """
     <section class='intro-strip'>
       <div class='intro-item'>
-        <p class='small-label'>Step 1</p>
-        <h3>Get your LE8 score</h3>
-        <p>Answer eight everyday health areas in plain language.</p>
+        <p class='small-label'>Based on AHA LE8</p>
+        <h3>Eight levers</h3>
+        <p>Food, movement, nicotine, sleep, body size, cholesterol, blood sugar, and blood pressure.</p>
       </div>
       <div class='intro-item'>
-        <p class='small-label'>Step 2</p>
-        <h3>See what matters most</h3>
-        <p>Vital8 highlights the lever most likely to improve your foundation.</p>
+        <p class='small-label'>One score</p>
+        <h3>Clear snapshot</h3>
+        <p>See your cardiovascular health foundation in a simple 0-100 score.</p>
       </div>
       <div class='intro-item'>
-        <p class='small-label'>Step 3</p>
-        <h3>Make one clear move</h3>
-        <p>Leave with a practical 30-day focus, not vague advice.</p>
+        <p class='small-label'>One next step</p>
+        <h3>Less vague advice</h3>
+        <p>Find the area most likely to move your score and your long-term health.</p>
       </div>
       <div class='intro-item'>
         <p class='small-label'>Optional</p>
-        <h3>Add deeper context</h3>
-        <p>VO2max, hsCRP, and Lp(a) can refine the prevention conversation.</p>
+        <h3>Go deeper</h3>
+        <p>Add VO2max, hsCRP, and Lp(a) when you want more biological context.</p>
       </div>
     </section>
     """,
@@ -809,20 +809,20 @@ st.markdown(
     f"""
     <section class='evidence-band'>
       <div>
-        <h2>Why your score matters</h2>
-        <p>Cardiovascular disease is the leading cause of death. LE8 is a practical way to measure the prevention levers tied to longevity and overall mortality.</p>
+        <h2>Why this matters</h2>
+        <p>Cardiovascular disease is the leading cause of death. LE8 measures the prevention levers most tied to longevity, mortality, and years lived well.</p>
       </div>
       <div class='evidence-stat'>
-        <h3>8 levers</h3>
-        <p>One score across the habits and measurements that shape prevention.</p>
+        <h3>0-100</h3>
+        <p>Each domain gets a plain-language score.</p>
       </div>
       <div class='evidence-stat'>
-        <h3>Longevity</h3>
-        <p>Higher LE8 scores are linked with lower mortality and more healthy years.</p>
+        <h3>Higher is better</h3>
+        <p>Better LE8 scores are linked with lower mortality and more healthy years.</p>
       </div>
       <div class='evidence-stat'>
-        <h3>Next step</h3>
-        <p>Vital8 turns the score into a focused place to start.</p>
+        <h3>No gimmick</h3>
+        <p>No supplement stack. No mystery score.</p>
       </div>
     </section>
     """,
