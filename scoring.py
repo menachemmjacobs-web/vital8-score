@@ -203,6 +203,7 @@ def score_glucose(method: str | None, value: float | None, has_diabetes: bool | 
 def score_bp(sbp: float | None, dbp: float | None, treated: bool) -> ScoreResult:
     if sbp is None or dbp is None:
         return _result(None, "Not entered", "A home blood pressure cuff is one of the most useful prevention tools you can own.")
+    mean_arterial_pressure = round((sbp + 2 * dbp) / 3, 1)
     if sbp < 120 and dbp < 80:
         untreated = 100
     elif 120 <= sbp < 130 and dbp < 80:
@@ -213,8 +214,14 @@ def score_bp(sbp: float | None, dbp: float | None, treated: bool) -> ScoreResult
         untreated = 25
     else:
         untreated = 0
-    score = max(0, untreated - 20) if treated else untreated
-    return _result(score, f"{sbp:.0f}/{dbp:.0f} mmHg", "Blood pressure is common, often silent, and very treatable.")
+    score = max(0, untreated - 20) if treated and untreated < 100 else untreated
+    return _result(
+        score,
+        f"{sbp:.0f}/{dbp:.0f} mmHg",
+        "This score focuses on elevated blood pressure. Very low blood pressure depends on symptoms and clinical context.",
+        map=mean_arterial_pressure,
+        low_map_flag=mean_arterial_pressure < 65,
+    )
 
 
 def calculate_total_score(component_scores: dict[str, ScoreResult]) -> dict[str, Any]:

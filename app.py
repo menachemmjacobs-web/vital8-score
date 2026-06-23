@@ -73,6 +73,14 @@ DEFAULTS = {
     "fish_seafood": None,
     "nuts_legumes": None,
     "sodium_foods": None,
+    "fruit_veg_scale": "Not answered",
+    "whole_grains_scale": "Not answered",
+    "sugary_drinks_scale": "Not answered",
+    "processed_food_scale": "Not answered",
+    "healthy_proteins_scale": "Not answered",
+    "fish_seafood_scale": "Not answered",
+    "nuts_legumes_scale": "Not answered",
+    "sodium_foods_scale": "Not answered",
     "moderate_minutes": None,
     "vigorous_minutes": None,
     "nicotine_current_use": None,
@@ -80,9 +88,12 @@ DEFAULTS = {
     "nicotine_quit_timing": None,
     "secondhand_exposure_status": None,
     "sleep_hours": None,
+    "body_units": "us",
     "height_ft": None,
     "height_in": None,
     "weight_lbs": None,
+    "height_cm": None,
+    "weight_kg": None,
     "knows_lipids": False,
     "total_chol": None,
     "hdl": None,
@@ -419,24 +430,85 @@ def optional_number(label: str, known: bool, min_value: float, max_value: float,
     return st.number_input(label, min_value=min_value, max_value=max_value, value=value, step=step, placeholder="Enter value", help=help_text)
 
 
-def legacy_diet_args() -> tuple[str, str, str, str, str]:
-    grain_map = {"rarely": "0", "sometimes": "1", "most": "2+", "always": "2+"}
+def legacy_diet_args() -> tuple[str | None, str, str | None, str | None, str, str, str, str]:
+    grain_map = {"0": "rarely", "1": "sometimes", "2+": "most", "rarely": "rarely", "sometimes": "sometimes", "most": "most", "always": "always"}
     protein_map = {
-        "plant_fish": "daily",
-        "mixed": "4-6",
-        "lean_meat": "2-3",
-        "red_processed": "0-1",
+        "daily": "plant_fish",
+        "4+": "plant_fish",
+        "4-6": "mixed",
+        "2-3": "lean_meat",
+        "0-1": "red_processed",
+        "plant_fish": "plant_fish",
+        "mixed": "mixed",
+        "lean_meat": "lean_meat",
+        "red_processed": "red_processed",
     }
     return (
         st.session_state.fruit_veg,
-        grain_map.get(st.session_state.whole_grains, "1"),
+        grain_map.get(st.session_state.whole_grains, "sometimes"),
         st.session_state.sugary_drinks,
         st.session_state.processed_food,
-        protein_map.get(st.session_state.healthy_proteins, "2-3"),
+        protein_map.get(st.session_state.healthy_proteins, "mixed"),
+        st.session_state.fish_seafood or "monthly",
+        st.session_state.nuts_legumes or "weekly",
+        st.session_state.sodium_foods or "sometimes",
     )
 
 
+DIET_BLANK = "Not answered"
+DIET_SCALE_OPTIONS = [DIET_BLANK, *range(0, 11)]
+
+
+def diet_scale(label: str, key: str, low_label: str, high_label: str, help_text: str | None = None) -> int | None:
+    value = st.select_slider(
+        label,
+        options=DIET_SCALE_OPTIONS,
+        format_func=lambda item: "Not answered" if item == DIET_BLANK else str(item),
+        key=key,
+        help=help_text,
+    )
+    st.caption(f"0 = {low_label} | 10 = {high_label}")
+    return None if value == DIET_BLANK else int(value)
+
+
+def sync_diet_scale_answers() -> None:
+    fruit = st.session_state.fruit_veg_scale
+    st.session_state.fruit_veg = None if fruit == DIET_BLANK else "0" if fruit == 0 else "1-2" if fruit <= 2 else "3-4" if fruit <= 4 else "5+"
+
+    grains = st.session_state.whole_grains_scale
+    st.session_state.whole_grains = None if grains == DIET_BLANK else "rarely" if grains <= 2 else "sometimes" if grains <= 5 else "most" if grains <= 8 else "always"
+
+    drinks = st.session_state.sugary_drinks_scale
+    st.session_state.sugary_drinks = None if drinks == DIET_BLANK else "0" if drinks == 0 else "1-3" if drinks <= 3 else "4-7" if drinks <= 7 else "7+"
+
+    processed = st.session_state.processed_food_scale
+    st.session_state.processed_food = None if processed == DIET_BLANK else "0-1" if processed <= 1 else "2-3" if processed <= 3 else "4-6" if processed <= 6 else "7+"
+
+    proteins = st.session_state.healthy_proteins_scale
+    st.session_state.healthy_proteins = (
+        None
+        if proteins == DIET_BLANK
+        else "red_processed"
+        if proteins <= 2
+        else "lean_meat"
+        if proteins <= 4
+        else "mixed"
+        if proteins <= 7
+        else "plant_fish"
+    )
+
+    fish = st.session_state.fish_seafood_scale
+    st.session_state.fish_seafood = None if fish == DIET_BLANK else "rarely" if fish <= 2 else "monthly" if fish <= 4 else "1" if fish <= 7 else "2+"
+
+    nuts = st.session_state.nuts_legumes_scale
+    st.session_state.nuts_legumes = None if nuts == DIET_BLANK else "rarely" if nuts <= 2 else "weekly" if nuts <= 4 else "few_weekly" if nuts <= 7 else "most_days"
+
+    sodium = st.session_state.sodium_foods_scale
+    st.session_state.sodium_foods = None if sodium == DIET_BLANK else "rarely" if sodium <= 2 else "sometimes" if sodium <= 6 else "often"
+
+
 def score_diet_with_blank_check() -> dict:
+    sync_diet_scale_answers()
     diet_values = [
         st.session_state.fruit_veg,
         st.session_state.whole_grains,
@@ -513,9 +585,16 @@ def score_nicotine_with_fallback() -> dict:
 
 def collect_scores() -> tuple[dict, dict]:
     height_inches = None
-    if st.session_state.height_ft is not None and st.session_state.height_in is not None:
+    weight_lbs = None
+    if st.session_state.body_units == "metric":
+        if st.session_state.height_cm is not None:
+            height_inches = st.session_state.height_cm / 2.54
+        if st.session_state.weight_kg is not None:
+            weight_lbs = st.session_state.weight_kg * 2.2046226218
+    elif st.session_state.height_ft is not None and st.session_state.height_in is not None:
         height_inches = st.session_state.height_ft * 12 + st.session_state.height_in
-    bmi = calculate_bmi(height_inches, st.session_state.weight_lbs)
+        weight_lbs = st.session_state.weight_lbs
+    bmi = calculate_bmi(height_inches, weight_lbs)
     diet = score_diet_with_blank_check()
     activity = score_activity(st.session_state.moderate_minutes, st.session_state.vigorous_minutes)
     lipids = score_lipids(
@@ -558,8 +637,11 @@ def collect_scores() -> tuple[dict, dict]:
             "quit_timing": st.session_state.nicotine_quit_timing,
             "secondhand_exposure": st.session_state.secondhand_exposure_status,
         },
+        "body_units": st.session_state.body_units,
         "height_inches": height_inches,
-        "weight_lbs": st.session_state.weight_lbs,
+        "height_cm": st.session_state.height_cm if st.session_state.body_units == "metric" else None,
+        "weight_lbs": weight_lbs,
+        "weight_kg": st.session_state.weight_kg if st.session_state.body_units == "metric" else None,
         "sleep_hours": st.session_state.sleep_hours,
         "moderate_minutes": st.session_state.moderate_minutes,
         "vigorous_minutes": st.session_state.vigorous_minutes,
@@ -782,100 +864,61 @@ with st.container(border=True):
     st.markdown("<p class='small-label'>1 of 8 - LE8 diet domain</p>", unsafe_allow_html=True)
     st.subheader("Your daily fuel")
     st.caption(DOMAIN_COPY["Daily fuel"])
-    c1, c2 = st.columns(2)
-    with c1:
-        st.selectbox(
-            "On a typical day, how many servings of fruits and vegetables do you eat?",
-            ["0", "1-2", "3-4", "5+"],
-            index=None,
-            placeholder="Choose one",
-            key="fruit_veg",
-            help="One serving is about a handful, a cup of salad, or one piece of fruit. Estimate your usual day, not your best day.",
-        )
-        st.selectbox(
-            "How often do you choose whole-grain foods over white or refined grains?",
-            ["rarely", "sometimes", "most", "always"],
-            format_func=lambda value: {
-                "rarely": "Rarely or never",
-                "sometimes": "Sometimes, a few times a week",
-                "most": "Most of the time",
-                "always": "Almost always",
-            }[value],
-            index=None,
-            placeholder="Choose one",
-            key="whole_grains",
-            help="Examples include oatmeal, whole wheat bread, brown rice, quinoa, barley, or high-fiber cereal.",
-        )
-        st.selectbox(
-            "In a typical week, how many sugary drinks do you have?",
-            ["0", "1-3", "4-7", "7+"],
-            index=None,
-            placeholder="Choose one",
-            key="sugary_drinks",
-            help="Include soda, sweet tea, juice drinks, energy drinks, and sweetened coffee drinks.",
-        )
-    with c2:
-        st.selectbox(
-            "In a typical week, how many meals come from fast food, fried food, or heavily processed foods?",
-            ["0-1", "2-3", "4-6", "7+"],
-            index=None,
-            placeholder="Choose one",
-            key="processed_food",
-            help="Estimate meals or snack occasions per week.",
-        )
-        st.selectbox(
-            "Which best describes your usual protein sources?",
-            ["plant_fish", "mixed", "lean_meat", "red_processed"],
-            format_func=lambda value: {
-                "plant_fish": "Mostly plant-based proteins and/or fish",
-                "mixed": "Mix of plant-based foods, fish, poultry, and some red meat",
-                "lean_meat": "Mostly poultry or lean meat, limited red or processed meat",
-                "red_processed": "Mostly red or processed meat",
-            }[value],
-            index=None,
-            placeholder="Choose one",
-            key="healthy_proteins",
-            help="Examples of heart-healthy proteins include fish, beans, lentils, tofu, nuts, and seeds.",
-        )
-        st.selectbox(
-            "How often do you eat fish or seafood?",
-            ["2+", "1", "monthly", "rarely"],
-            format_func=lambda value: {
-                "2+": "2 or more times per week",
-                "1": "About once a week",
-                "monthly": "A few times a month",
-                "rarely": "Rarely or never",
-            }[value],
-            index=None,
-            placeholder="Choose one",
-            key="fish_seafood",
-        )
-        st.selectbox(
-            "How often do you eat nuts, seeds, beans, or lentils?",
-            ["most_days", "few_weekly", "weekly", "rarely"],
-            format_func=lambda value: {
-                "most_days": "Most days, 5+ times per week",
-                "few_weekly": "A few times a week",
-                "weekly": "About once a week",
-                "rarely": "Rarely or never",
-            }[value],
-            index=None,
-            placeholder="Choose one",
-            key="nuts_legumes",
-        )
-        st.selectbox(
-            "How often do you add salt at the table or eat high-sodium foods?",
-            ["rarely", "sometimes", "often"],
-            format_func=lambda value: {
-                "rarely": "Rarely - I actively limit salt",
-                "sometimes": "Sometimes",
-                "often": "Often - most meals are salty or restaurant-prepared",
-            }[value],
-            index=None,
-            placeholder="Choose one",
-            key="sodium_foods",
-            help="Examples include canned soups, chips, soy sauce, pickled foods, deli meats, and frequent restaurant meals.",
-        )
+    st.caption("Use the 0-10 scales below. They will be translated into an LE8-style diet estimate.")
+    diet_scale(
+        "On a typical day, how many servings of fruits and vegetables do you eat?",
+        "fruit_veg_scale",
+        "none",
+        "10+ servings",
+        help_text="One serving is about a handful, a cup of salad, or one piece of fruit. Estimate your usual day, not your best day.",
+    )
+    diet_scale(
+        "How often do you choose whole-grain foods over white or refined grains?",
+        "whole_grains_scale",
+        "rarely or never",
+        "almost always",
+        help_text="Examples include oatmeal, whole wheat bread, brown rice, quinoa, barley, or high-fiber cereal.",
+    )
+    diet_scale(
+        "In a typical week, how many sugary drinks do you have?",
+        "sugary_drinks_scale",
+        "none",
+        "10+ drinks",
+        help_text="Include soda, sweet tea, juice drinks, energy drinks, and sweetened coffee drinks.",
+    )
+    diet_scale(
+        "In a typical week, how many meals come from fast food, fried food, or heavily processed foods?",
+        "processed_food_scale",
+        "none",
+        "10+ meals",
+        help_text="Estimate meals or snack occasions per week.",
+    )
+    diet_scale(
+        "How heart-healthy are your usual protein sources?",
+        "healthy_proteins_scale",
+        "mostly red or processed meat",
+        "mostly plants, beans, nuts, fish",
+        help_text="Examples of heart-healthy proteins include fish, beans, lentils, tofu, nuts, and seeds.",
+    )
+    diet_scale(
+        "How often do you eat fish or seafood?",
+        "fish_seafood_scale",
+        "rarely or never",
+        "2+ times per week",
+    )
+    diet_scale(
+        "How often do you eat nuts, seeds, beans, or lentils?",
+        "nuts_legumes_scale",
+        "rarely or never",
+        "most days",
+    )
+    diet_scale(
+        "How often do you add salt at the table or eat high-sodium foods?",
+        "sodium_foods_scale",
+        "rarely",
+        "often",
+        help_text="Examples include canned soups, chips, soy sauce, pickled foods, deli meats, and frequent restaurant meals.",
+    )
 
 with st.container(border=True):
     st.markdown("<p class='small-label'>2 of 8 - LE8 activity domain</p>", unsafe_allow_html=True)
@@ -983,17 +1026,37 @@ with st.container(border=True):
     st.markdown("<p class='small-label'>5 of 8 - LE8 body size domain</p>", unsafe_allow_html=True)
     st.subheader("Body size")
     st.caption(DOMAIN_COPY["Body size"])
-    c1, c2, c3 = st.columns(3)
-    with c1:
-        st.number_input("How tall are you? Feet", min_value=3, max_value=8, value=None, placeholder="Feet", key="height_ft")
-    with c2:
-        st.number_input("How tall are you? Inches", min_value=0, max_value=11, value=None, placeholder="Inches", key="height_in")
-    with c3:
-        st.number_input("What is your current weight in pounds?", min_value=60.0, max_value=700.0, value=None, step=1.0, placeholder="Pounds", key="weight_lbs")
+    st.radio(
+        "Units",
+        ["us", "metric"],
+        format_func=lambda value: {"us": "Feet / inches / pounds", "metric": "Centimeters / kilograms"}[value],
+        horizontal=True,
+        key="body_units",
+    )
     preview_height = None
-    if st.session_state.height_ft is not None and st.session_state.height_in is not None:
-        preview_height = st.session_state.height_ft * 12 + st.session_state.height_in
-    bmi_preview = calculate_bmi(preview_height, st.session_state.weight_lbs)
+    preview_weight = None
+    if st.session_state.body_units == "metric":
+        c1, c2 = st.columns(2)
+        with c1:
+            st.number_input("Height in centimeters", min_value=90.0, max_value=250.0, value=None, step=1.0, placeholder="Centimeters", key="height_cm")
+        with c2:
+            st.number_input("Weight in kilograms", min_value=25.0, max_value=320.0, value=None, step=0.5, placeholder="Kilograms", key="weight_kg")
+        if st.session_state.height_cm is not None:
+            preview_height = st.session_state.height_cm / 2.54
+        if st.session_state.weight_kg is not None:
+            preview_weight = st.session_state.weight_kg * 2.2046226218
+    else:
+        c1, c2, c3 = st.columns(3)
+        with c1:
+            st.number_input("Height: feet", min_value=3, max_value=8, value=None, placeholder="Feet", key="height_ft")
+        with c2:
+            st.number_input("Height: inches", min_value=0, max_value=11, value=None, placeholder="Inches", key="height_in")
+        with c3:
+            st.number_input("Weight in pounds", min_value=60.0, max_value=700.0, value=None, step=1.0, placeholder="Pounds", key="weight_lbs")
+        if st.session_state.height_ft is not None and st.session_state.height_in is not None:
+            preview_height = st.session_state.height_ft * 12 + st.session_state.height_in
+        preview_weight = st.session_state.weight_lbs
+    bmi_preview = calculate_bmi(preview_height, preview_weight)
     if bmi_preview is None:
         st.caption("Enter height and weight to estimate BMI. BMI is an imperfect screening tool and does not measure muscle, body composition, or overall health by itself.")
     else:
@@ -1054,6 +1117,18 @@ with st.container(border=True):
             st.checkbox("I take blood pressure medication", key="bp_treated")
         else:
             st.session_state.bp_treated = False
+    if st.session_state.knows_bp and st.session_state.sbp is not None and st.session_state.dbp is not None:
+        bp_map = round((st.session_state.sbp + 2 * st.session_state.dbp) / 3, 1)
+        if bp_map < 65:
+            st.warning(
+                f"Your estimated mean arterial pressure is {bp_map} mmHg. Vital8 does not penalize low blood pressure as a prevention target, "
+                "but very low pressure can matter if you feel dizzy, faint, weak, confused, short of breath, or have chest pain. "
+                "If this reading is unusual or you have symptoms, contact a clinician or seek urgent care."
+            )
+        elif st.session_state.sbp < 90 or st.session_state.dbp < 60:
+            st.caption(
+                "Vital8 does not penalize low blood pressure as a prevention target. If low readings are new or come with symptoms, discuss them with a clinician."
+            )
 
 st.divider()
 components, raw_inputs = collect_scores()
