@@ -629,6 +629,20 @@ def inject_css() -> None:
           max-height: min(720px, calc(100vh - 120px));
           overflow-y: auto;
         }
+        div[data-testid="stPopoverBody"] .stButton > button {
+          background: #ffffff !important;
+          color: var(--navy) !important;
+          border: 1px solid #c7d0dc !important;
+          box-shadow: none !important;
+        }
+        div[data-testid="stPopoverBody"] .stButton > button:hover {
+          background: #eef2f7 !important;
+          border-color: #aeb9c7 !important;
+        }
+        div[data-testid="stPopoverBody"] .stButton > button::before {
+          content: none !important;
+          display: none !important;
+        }
         @media (max-width: 900px) {
           .brand-bar {
             position: static;
@@ -680,7 +694,7 @@ def inject_css() -> None:
             bottom: 12px;
             width: calc(100vw - 24px);
           }
-          .st-key-vital8_ai_floating button {
+          .st-key-vital8_ai_floating > div > div > button {
             width: 100%;
           }
         }
