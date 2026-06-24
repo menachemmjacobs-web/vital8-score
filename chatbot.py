@@ -24,9 +24,9 @@ from guardrails import detect_red_flags
 # Current high-quality default: GPT-5.5. Fallbacks keep the app usable if a project lacks model access.
 DEFAULT_AI_MODEL = "gpt-5.5"
 FALLBACK_MODELS = ["gpt-5.4", "gpt-5.4-mini"]
-MAX_OUTPUT_TOKENS = 700
+MAX_OUTPUT_TOKENS = 900
 ICON_PATH = Path("assets/vital8-favicon.png")
-CHAT_UI_VERSION = "2026-06-24-leverage-tone-output-first"
+CHAT_UI_VERSION = "2026-06-24-roi-smart-goals"
 
 SYSTEM_PROMPT = (
     "You are Vital8 AI, a science-based preventive cardiology coach for an educational Life's Essential 8 "
@@ -38,6 +38,8 @@ SYSTEM_PROMPT = (
     "and Lp(a). Interpret systems rather than dumping raw data. Identify the highest-yield general prevention "
     "priority: the factor where the smallest realistic intervention could create the largest biological return. "
     "When useful, use this phrasing: 'The highest-yield action right now is...' "
+    "Use the language of ROI. Explain which changes are most likely to change the equation, which are lower-return "
+    "right now, and why. Frame recommendations as leverage actions, not moral judgments. "
     "You may discuss population-level evidence that higher LE8 and higher cardiorespiratory fitness are associated "
     "with longer life and more disease-free years, but do not estimate the user's personal life expectancy or promise "
     "a specific number of life years gained. Do not diagnose, treat, provide emergency triage, or recommend medication "
@@ -45,7 +47,11 @@ SYSTEM_PROMPT = (
     "clinical risk calculators. If a user says alpha-lipoic acid while asking about the advanced lipid biomarker, "
     "gently clarify that Vital8 uses Lp(a), lipoprotein little-a, not the supplement alpha-lipoic acid. "
     "Keep most answers compact. Prefer short headers such as 'Current read', 'Why it matters', and 'Next move'. "
-    "End with one practical follow-up question only when it would materially improve the next answer."
+    "For substantive answers about scores, priorities, or what to do next, end with a section titled '3 SMART goals'. "
+    "Create exactly three SMART goals: specific, measurable, achievable, relevant, and time-bound. Each goal should "
+    "be practical for the next 7 to 30 days and tied to the user's highest-ROI levers. After the SMART goals, ask one "
+    "brief coaching question such as 'How does that plan feel for your actual week?' or 'Which of these feels most "
+    "realistic to start with?' Do not add SMART goals to simple setup, error, or definition-only answers."
 )
 
 
@@ -186,7 +192,7 @@ def _ensure_chat_messages() -> None:
         st.session_state.vital8_chat_messages = [
             {
                 "role": "assistant",
-                "content": "Hi, I'm Vital8 AI. Ask me what your score means, where the biggest leverage is, or how VO2max and biomarkers change the interpretation. I keep this educational and practical, not diagnostic.",
+                "content": "Hi, I'm Vital8 AI. Ask me what your score means, where the highest-ROI leverage is, or how VO2max and biomarkers change the interpretation. I can help turn the result into three practical SMART goals.",
             }
         ]
         st.session_state.vital8_chat_ui_version = CHAT_UI_VERSION
@@ -194,7 +200,7 @@ def _ensure_chat_messages() -> None:
         st.session_state.vital8_chat_messages = [
             {
                 "role": "assistant",
-                "content": "Hi, I'm Vital8 AI. Ask me what your score means, where the biggest leverage is, or how VO2max and biomarkers change the interpretation. I keep this educational and practical, not diagnostic.",
+                "content": "Hi, I'm Vital8 AI. Ask me what your score means, where the highest-ROI leverage is, or how VO2max and biomarkers change the interpretation. I can help turn the result into three practical SMART goals.",
             }
         ]
 
@@ -254,7 +260,7 @@ def render_chatbot(score_summary: dict[str, Any] | None) -> None:
             with st.form("vital8_ai_sidebar_form", clear_on_submit=True):
                 user_message = st.text_area(
                     "Ask while you fill this out",
-                    placeholder="Example: What is my highest-yield next move?",
+                    placeholder="Example: What are my highest-ROI next steps?",
                     height=90,
                     key="vital8_ai_sidebar_prompt",
                 )
