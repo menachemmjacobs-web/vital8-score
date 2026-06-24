@@ -128,28 +128,39 @@ def inject_css() -> None:
     st.markdown(
         """
         <style>
+        @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
         :root {
-          --navy: #11243a;
-          --teal: #11a7a4;
-          --green: #1d9a6c;
-          --amber: #d88a1d;
-          --red: #c9473d;
-          --bg: #f7f8fa;
+          --navy: #0d1520;
+          --teal: #1f5fd6;
+          --green: #1f5fd6;
+          --amber: #c0851b;
+          --red: #e0414a;
+          --bg: #eef1f6;
           --surface: #ffffff;
-          --surface-soft: #edf8f7;
-          --border: rgba(17, 36, 58, .12);
-          --ink-soft: #556070;
+          --surface-soft: #e7efff;
+          --border: #e2e7ef;
+          --border-soft: #eef1f6;
+          --ink-soft: #56627a;
+          --ink-faint: #8a96aa;
+          --red-soft: #fdeced;
+          --amber-soft: #fbf2e0;
         }
         .stApp,
         [data-testid="stAppViewContainer"],
         [data-testid="stHeader"] {
           background: var(--bg);
           color: var(--navy);
+          font-family: 'IBM Plex Sans', sans-serif;
         }
-        .block-container { padding-top: 2rem; max-width: 1180px; }
-        h1, h2, h3, h4, h5, h6 { letter-spacing: 0; color: var(--navy); }
-        h1 { font-size: clamp(2.5rem, 5vw, 4.6rem); line-height: .98; margin-bottom: 1.1rem; }
-        h2 { font-size: clamp(1.8rem, 3vw, 2.7rem); line-height: 1.05; }
+        [data-testid="stHeader"] { background: rgba(238, 241, 246, .82); }
+        .block-container { padding-top: 1.25rem; max-width: 1200px; }
+        h1, h2, h3, h4, h5, h6 {
+          font-family: 'Archivo', sans-serif;
+          letter-spacing: -.015em;
+          color: var(--navy);
+        }
+        h1 { font-size: clamp(2.55rem, 5vw, 4.45rem); line-height: 1.02; margin-bottom: 1.1rem; }
+        h2 { font-size: clamp(1.85rem, 3vw, 2.65rem); line-height: 1.07; }
         [data-testid="stMarkdownContainer"],
         [data-testid="stMarkdownContainer"] p,
         [data-testid="stMarkdownContainer"] li,
@@ -160,25 +171,218 @@ def inject_css() -> None:
           color: var(--navy) !important;
         }
         div[data-testid="stTabs"] button { font-size: 1rem; font-weight: 700; }
-        .hero {
+        .brand-bar {
+          position: sticky;
+          top: 0;
+          z-index: 30;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 20px;
+          padding: 14px 0 18px;
+          margin-bottom: 12px;
+          background: rgba(238, 241, 246, .86);
+          backdrop-filter: blur(12px);
+          border-bottom: 1px solid var(--border);
+        }
+        .brand-lockup {
+          display: inline-flex;
+          align-items: center;
+          gap: 10px;
+          font-family: 'IBM Plex Mono', monospace;
+          font-weight: 600;
+          letter-spacing: .06em;
+          font-size: .94rem;
+        }
+        .diamond {
+          width: 11px;
+          height: 11px;
+          background: var(--red);
+          border-radius: 2px;
+          transform: rotate(45deg);
+          display: inline-block;
+          flex: none;
+        }
+        .brand-nav {
+          display: flex;
+          align-items: center;
+          gap: 20px;
+          flex-wrap: wrap;
+        }
+        .brand-nav a {
+          font-family: 'IBM Plex Mono', monospace;
+          font-size: .78rem;
+          font-weight: 600;
+          letter-spacing: .03em;
+          color: var(--ink-soft);
+          text-decoration: none !important;
+        }
+        .brand-nav .nav-cta {
+          color: #fff;
+          background: var(--navy);
           border-radius: 8px;
-          padding: clamp(28px, 5vw, 54px);
-          background:
-            linear-gradient(135deg, rgba(255,255,255,.98) 0%, rgba(237,248,247,.92) 100%);
-          border: 1px solid var(--border);
-          box-shadow: 0 14px 38px rgba(17, 36, 58, .07);
+          padding: 10px 16px;
+        }
+        .hero {
+          display: grid;
+          grid-template-columns: 1.05fr .95fr;
+          gap: clamp(28px, 5vw, 60px);
+          align-items: center;
+          padding: clamp(34px, 6vw, 74px) 0 34px;
         }
         .hero p {
-          max-width: 760px;
-          font-size: 1.12rem;
-          line-height: 1.62;
+          max-width: 31em;
+          font-size: 1.14rem;
+          line-height: 1.58;
+          margin: 0 0 1.25rem;
+          text-wrap: pretty;
         }
-        .card {
-          border-radius: 8px;
-          padding: 18px;
+        .hero-actions {
+          display: flex;
+          align-items: center;
+          gap: 14px;
+          flex-wrap: wrap;
+          margin: 1.55rem 0 1.15rem;
+        }
+        .hero-button {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 9px;
+          padding: 14px 22px;
+          font-family: 'IBM Plex Mono', monospace;
+          font-weight: 600;
+          font-size: .86rem;
+          letter-spacing: .02em;
+          text-decoration: none !important;
+          border: 1px solid var(--border);
+        }
+        .hero-button:hover,
+        .hero-button:visited,
+        .brand-nav a:hover,
+        .brand-nav a:visited {
+          text-decoration: none !important;
+        }
+        .hero-button.primary { background: var(--navy); color: #fff !important; border-color: var(--navy); }
+        .hero-button.secondary { color: var(--navy) !important; background: transparent; }
+        .proof-line {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+          color: var(--ink-faint);
+          font-family: 'IBM Plex Mono', monospace;
+          font-size: .75rem;
+          letter-spacing: .02em;
+        }
+        .hero-score-card {
           background: var(--surface);
           border: 1px solid var(--border);
-          box-shadow: 0 8px 20px rgba(17, 36, 58, .045);
+          border-radius: 18px;
+          padding: 28px;
+          box-shadow: 0 22px 50px -28px rgba(13, 21, 32, .32);
+        }
+        .score-card-top,
+        .score-card-main {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 18px;
+        }
+        .score-card-top {
+          margin-bottom: 18px;
+          color: var(--ink-faint);
+          font-family: 'IBM Plex Mono', monospace;
+          font-size: .68rem;
+          font-weight: 600;
+          letter-spacing: .14em;
+          text-transform: uppercase;
+        }
+        .sample-badge {
+          border: 1px solid var(--border);
+          border-radius: 999px;
+          padding: 4px 9px;
+        }
+        .sample-ring {
+          width: 128px;
+          height: 128px;
+          border-radius: 999px;
+          background: conic-gradient(var(--teal) 0 82%, var(--border-soft) 82% 100%);
+          display: grid;
+          place-items: center;
+          flex: none;
+        }
+        .sample-ring-inner {
+          width: 94px;
+          height: 94px;
+          border-radius: 999px;
+          background: var(--surface);
+          display: grid;
+          place-items: center;
+          text-align: center;
+          font-family: 'IBM Plex Mono', monospace;
+        }
+        .sample-ring-score {
+          display: block;
+          color: var(--navy);
+          font-size: 2.45rem;
+          font-weight: 600;
+          line-height: 1;
+        }
+        .sample-ring-denom {
+          color: var(--ink-faint);
+          font-size: .65rem;
+          letter-spacing: .12em;
+        }
+        .sample-status {
+          display: inline-flex;
+          background: var(--surface-soft);
+          color: var(--teal);
+          font-family: 'IBM Plex Mono', monospace;
+          font-size: .75rem;
+          font-weight: 600;
+          letter-spacing: .03em;
+          border-radius: 999px;
+          padding: 6px 11px;
+          margin-bottom: 10px;
+        }
+        .sample-copy {
+          color: var(--ink-soft);
+          font-size: .88rem !important;
+          line-height: 1.5 !important;
+          margin: 0 !important;
+        }
+        .sample-bars {
+          display: flex;
+          flex-direction: column;
+          gap: 9px;
+          margin-top: 22px;
+        }
+        .sample-bar {
+          display: grid;
+          grid-template-columns: 96px 1fr 30px;
+          gap: 12px;
+          align-items: center;
+          font-family: 'IBM Plex Mono', monospace;
+          font-size: .69rem;
+          color: var(--ink-soft);
+        }
+        .sample-track {
+          height: 7px;
+          background: var(--border-soft);
+          border-radius: 999px;
+          overflow: hidden;
+        }
+        .sample-fill {
+          height: 100%;
+          border-radius: 999px;
+          background: var(--teal);
+        }
+        .card {
+          border-radius: 14px;
+          padding: 22px;
+          background: var(--surface);
+          border: 1px solid var(--border);
+          box-shadow: none;
           height: 100%;
         }
         .card h3 {
@@ -200,9 +404,8 @@ def inject_css() -> None:
           gap: 1px;
           overflow: hidden;
           border: 1px solid var(--border);
-          border-radius: 8px;
+          border-radius: 14px;
           background: var(--border);
-          box-shadow: 0 10px 28px rgba(17, 36, 58, .045);
         }
         .intro-item {
           background: var(--surface);
@@ -226,7 +429,7 @@ def inject_css() -> None:
           gap: 18px;
           align-items: stretch;
           padding: 24px;
-          border-radius: 8px;
+          border-radius: 18px;
           background: #11243a;
           color: #ffffff;
           box-shadow: 0 14px 34px rgba(17, 36, 58, .12);
@@ -257,7 +460,7 @@ def inject_css() -> None:
           font-size: .9rem;
         }
         .compact-explainer {
-          border-radius: 8px;
+          border-radius: 14px;
           padding: 16px 18px;
           background: var(--surface);
           border: 1px solid var(--border);
@@ -269,7 +472,7 @@ def inject_css() -> None:
           gap: 14px;
         }
         .compact-explainer-item {
-          border-left: 2px solid rgba(17, 167, 164, .35);
+          border-left: 2px solid rgba(31, 95, 214, .35);
           padding-left: 12px;
         }
         .compact-explainer-item h3 {
@@ -292,11 +495,12 @@ def inject_css() -> None:
         }
         .small-label {
           margin: 0 0 8px;
-          color: var(--teal);
+          color: var(--red);
+          font-family: 'IBM Plex Mono', monospace;
           font-size: .78rem;
-          font-weight: 800;
+          font-weight: 600;
           text-transform: uppercase;
-          letter-spacing: .08em;
+          letter-spacing: .14em;
         }
         .muted { color: var(--ink-soft); }
         .score-number { font-size: 4.5rem; line-height: 1; font-weight: 850; color: var(--navy); }
@@ -305,7 +509,7 @@ def inject_css() -> None:
         .status-Priority { color: var(--red); font-weight: 800; }
         .status-Not-entered { color: #697586; font-weight: 800; }
         .disclaimer {
-          border-left: 4px solid var(--teal);
+          border-left: 4px solid var(--red);
           background: var(--surface);
           border-radius: 8px;
           padding: 14px 16px;
@@ -337,11 +541,12 @@ def inject_css() -> None:
           color: var(--navy) !important;
         }
         .stButton > button {
-          border-radius: 999px;
+          border-radius: 9px;
           border: 0;
           color: white;
           background: var(--navy);
-          font-weight: 800;
+          font-family: 'IBM Plex Mono', monospace;
+          font-weight: 600;
           padding: .75rem 1.2rem;
         }
         .st-key-vital8_ai_floating {
@@ -363,7 +568,35 @@ def inject_css() -> None:
           max-height: min(720px, calc(100vh - 120px));
           overflow-y: auto;
         }
-        @media (max-width: 760px) {
+        @media (max-width: 900px) {
+          .brand-bar {
+            position: static;
+            align-items: flex-start;
+          }
+          .brand-nav {
+            display: none;
+          }
+          .hero {
+            grid-template-columns: 1fr;
+            padding-top: 28px;
+          }
+          .hero-score-card {
+            padding: 22px;
+          }
+          .score-card-main {
+            align-items: flex-start;
+          }
+          .sample-ring {
+            width: 108px;
+            height: 108px;
+          }
+          .sample-ring-inner {
+            width: 80px;
+            height: 80px;
+          }
+          .sample-ring-score {
+            font-size: 2rem;
+          }
           .intro-strip,
           .evidence-band,
           .compact-explainer-grid {
@@ -766,10 +999,55 @@ landing_body = "\n".join(
 
 st.markdown(
     f"""
+    <header class='brand-bar'>
+      <div class='brand-lockup'><span class='diamond'></span><span>VITAL8</span></div>
+      <nav class='brand-nav'>
+        <a href='#how-it-works'>How it works</a>
+        <a href='#eight-levers'>The 8 levers</a>
+        <a class='nav-cta' href='#assessment'>Start assessment</a>
+      </nav>
+    </header>
     <section class='hero'>
-      <p class='small-label'>Based on AHA Life's Essential 8</p>
-      <h1>{LANDING_TITLE}</h1>
-      {landing_body}
+      <div>
+        <p class='small-label'><span class='diamond'></span> Life's Essential 8 assessment</p>
+        <h1>{LANDING_TITLE}</h1>
+        {landing_body}
+        <div class='hero-actions'>
+          <a class='hero-button primary' href='#assessment'>Start free assessment</a>
+          <a class='hero-button secondary' href='#how-it-works'>See how scoring works</a>
+        </div>
+        <div class='proof-line'>
+          <span>No signup</span><span>·</span><span>No paywall</span><span>·</span><span>Labs optional</span><span>·</span><span>No black-box longevity score</span>
+        </div>
+      </div>
+      <aside class='hero-score-card'>
+        <div class='score-card-top'>
+          <span>Your LE8 score</span>
+          <span class='sample-badge'>Sample</span>
+        </div>
+        <div class='score-card-main'>
+          <div class='sample-ring'>
+            <div class='sample-ring-inner'>
+              <span class='sample-ring-score'>82</span>
+              <span class='sample-ring-denom'>/ 100</span>
+            </div>
+          </div>
+          <div>
+            <div class='sample-status'>High cardiovascular health</div>
+            <p class='sample-copy'>Top-tier foundation. Biggest opportunity: <strong>sleep consistency</strong>.</p>
+          </div>
+        </div>
+        <div class='sample-bars'>
+          <div class='sample-bar'><span>Nutrition</span><div class='sample-track'><div class='sample-fill' style='width:85%'></div></div><span>85</span></div>
+          <div class='sample-bar'><span>Activity</span><div class='sample-track'><div class='sample-fill' style='width:90%'></div></div><span>90</span></div>
+          <div class='sample-bar'><span>Nicotine</span><div class='sample-track'><div class='sample-fill' style='width:100%'></div></div><span>100</span></div>
+          <div class='sample-bar'><span>Sleep</span><div class='sample-track'><div class='sample-fill' style='width:55%; background:var(--amber)'></div></div><span>55</span></div>
+          <div class='sample-bar'><span>Body size</span><div class='sample-track'><div class='sample-fill' style='width:80%'></div></div><span>80</span></div>
+          <div class='sample-bar'><span>Cholesterol</span><div class='sample-track'><div class='sample-fill' style='width:90%'></div></div><span>90</span></div>
+          <div class='sample-bar'><span>Blood sugar</span><div class='sample-track'><div class='sample-fill' style='width:100%'></div></div><span>100</span></div>
+          <div class='sample-bar'><span>Blood pressure</span><div class='sample-track'><div class='sample-fill' style='width:75%; background:var(--amber)'></div></div><span>75</span></div>
+        </div>
+      </aside>
     </section>
     """,
     unsafe_allow_html=True,
@@ -778,26 +1056,26 @@ st.markdown(
 st.write("")
 st.markdown(
     """
-    <section class='intro-strip'>
+    <section id='how-it-works' class='intro-strip'>
       <div class='intro-item'>
-        <p class='small-label'>Based on AHA LE8</p>
-        <h3>Eight levers</h3>
-        <p>Food, movement, nicotine, sleep, body size, cholesterol, blood sugar, and blood pressure.</p>
+        <p class='small-label'>Step 1</p>
+        <h3>Answer eight levers</h3>
+        <p>Plain questions about everyday health. No lab results required to begin.</p>
       </div>
       <div class='intro-item'>
-        <p class='small-label'>One score</p>
-        <h3>Clear snapshot</h3>
-        <p>See your cardiovascular health foundation in a simple 0-100 score.</p>
+        <p class='small-label'>Step 2</p>
+        <h3>Get your composite score</h3>
+        <p>See your 0-100 LE8 score and which lever is dragging it down.</p>
       </div>
       <div class='intro-item'>
-        <p class='small-label'>One next step</p>
-        <h3>Less vague advice</h3>
-        <p>Find the area most likely to move your score and your long-term health.</p>
+        <p class='small-label'>Step 3</p>
+        <h3>Make one clear move</h3>
+        <p>Leave with a practical 30-day focus, not a vague to-do list.</p>
       </div>
       <div class='intro-item'>
         <p class='small-label'>Optional</p>
-        <h3>Go deeper</h3>
-        <p>Add VO2max, hsCRP, and Lp(a) when you want more biological context.</p>
+        <h3>Add deeper context</h3>
+        <p>Layer in VO2max, hsCRP, and Lp(a) when you want a sharper picture.</p>
       </div>
     </section>
     """,
@@ -848,6 +1126,7 @@ with st.expander("Learn more about Vital8 and why it was built"):
     )
 
 st.divider()
+st.markdown("<span id='assessment'></span>", unsafe_allow_html=True)
 st.header("Your LE8 assessment")
 st.caption("Complete the sections in one scroll. If you do not know a lab or blood pressure value, leave it blank and Vital8 will calculate a partial score.")
 st.progress(1.0, text="8 Life's Essential 8 sections")

@@ -21,33 +21,24 @@ copy = _stdlib_copy.copy
 deepcopy = _stdlib_copy.deepcopy
 Error = _stdlib_copy.Error
 
-LANDING_TITLE = "Your heart health, made clear."
+LANDING_TITLE = "Your heart health, in one honest number."
 
 LANDING_PARAGRAPHS = [
     (
-        "Eight levers. One evidence-based score. One practical next step."
-    ),
-    (
-        "Based on the American Heart Association's Life's Essential 8, Vital8 turns prevention science into something you can actually use."
-    ),
-    (
-        "The goal is not a perfect score. The goal is knowing where you stand, what matters most, and what to work on next."
-    ),
-    (
-        "Always free. No supplements. No paywall. No black-box longevity score."
-    ),
+        "Eight evidence-based levers. One composite score from 0-100. A few minutes of plain questions, and the single move most likely to raise it."
+    )
 ]
 
 LANDING_SUBTITLE = LANDING_PARAGRAPHS[0]
 
 DISCLAIMER = (
-    "This tool is for education only and does not diagnose, treat, or replace care from your clinician. "
+    "Educational tool, not medical advice. Vital8 does not diagnose, treat, or replace care from your clinician. "
     "If you have symptoms or urgent concerns, seek medical care."
 )
 
 WHAT_THIS_MEASURES = (
-    "Life's Essential 8, or LE8, scores the eight habits and health numbers most tied to long-term cardiovascular health. "
-    "Each area is scored from 0 to 100, and your total score is the average of the areas you enter."
+    "Life's Essential 8 scores eight habits and health numbers that predict cardiovascular health. "
+    "Each lever is scored from 0 to 100; your composite is their average."
 )
 
 LE8_INTRO = (
@@ -56,7 +47,7 @@ LE8_INTRO = (
 )
 
 EVIDENCE_NOTE = (
-    "A score that means something. A next step you can understand."
+    "Know where you stand. Then change one thing."
 )
 
 WHY_SCORE_MATTERS = [
@@ -98,14 +89,14 @@ BIOMARKER_EXPLAINERS = [
 ]
 
 DOMAIN_COPY = {
-    "Daily fuel": "LE8 includes diet because your usual food pattern affects cholesterol, blood pressure, blood sugar, weight, and inflammation. Think about your usual eating pattern over the last few months. There are no perfect answers - we're looking for your typical routine.",
-    "Movement": "LE8 gives credit for weekly movement because activity improves blood pressure, insulin sensitivity, sleep, mood, and long-term heart health.",
-    "Nicotine and smoke exposure": "LE8 includes nicotine because smoking, vaping, and secondhand smoke can affect blood vessels, blood pressure, clotting risk, and long-term heart health.",
-    "Sleep rhythm": "LE8 includes sleep because too little or too much sleep can track with blood pressure, glucose control, appetite, and stress.",
-    "Body size": "LE8 uses body mass index as one screening signal. It is imperfect, but body size can influence blood pressure, cholesterol, blood sugar, sleep apnea risk, and inflammation.",
-    "Cholesterol particles": "LE8 uses non-HDL cholesterol, calculated as total cholesterol minus HDL, because it captures cholesterol carried by artery-plaque-forming particles.",
-    "Blood sugar": "LE8 includes blood sugar because higher levels over time can increase risk for diabetes, kidney disease, and cardiovascular disease.",
-    "Blood pressure": "LE8 includes blood pressure because it is common, often silent, measurable at home, and very treatable.",
+    "Daily fuel": "Eight quick questions about your usual eating pattern. No tracking - just your honest average.",
+    "Movement": "Count weekly minutes with your heart rate up. Vigorous minutes count double toward the 150-minute target.",
+    "Nicotine and smoke exposure": "Cigarettes, vaping, smokeless tobacco, and regular secondhand exposure all count here.",
+    "Sleep rhythm": "Your typical sleep over the past month. Consistency and duration both matter.",
+    "Body size": "Used to estimate BMI - a rough screen that does not see muscle or body composition.",
+    "Cholesterol particles": "From a recent lipid panel. Vital8 uses non-HDL cholesterol: total cholesterol minus HDL.",
+    "Blood sugar": "From an A1c or fasting glucose test. If you do not have it, skip it and sharpen the score later.",
+    "Blood pressure": "A recent home or clinic reading works. If you do not have one, skip it for now.",
 }
 
 DOMAIN_MEANINGS = {
