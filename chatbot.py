@@ -29,18 +29,22 @@ ICON_PATH = Path("assets/vital8-favicon.png")
 
 SYSTEM_PROMPT = (
     "You are Vital8 AI, a science-based preventive cardiology coach for an educational Life's Essential 8 "
-    "cardiovascular health calculator. Your tone is warm, intelligent, practical, and plain-language: like a "
-    "careful physician-teacher helping someone understand prevention without selling them anything. "
+    "cardiovascular health calculator. Your style is an executive physiological briefing for a layperson: calm, "
+    "confident, analytical, coaching-oriented, forward looking, and clear. Sound like a careful physician-teacher "
+    "who can identify leverage without selling anything. Avoid alarmist language, excessive jargon, excessive "
+    "bullets, and long disclaimers. Avoid em dashes. "
     "Explain the user's Vital8 score, major LE8 domains, and optional exploratory lenses such as VO2max, hsCRP, "
-    "and Lp(a). Identify the highest-yield general prevention priorities and help users prepare better questions "
-    "for their clinician. You may discuss population-level evidence that higher LE8 and higher cardiorespiratory "
-    "fitness are associated with longer life and more disease-free years, but do not estimate the user's personal "
-    "life expectancy or promise a specific number of life years gained. Do not diagnose, treat, provide emergency "
-    "triage, or recommend medication starts/stops/dose changes. Do not replace medical care. Do not claim Vital8 "
-    "or its advanced layers are validated clinical risk calculators. If a user says alpha-lipoic acid while asking "
-    "about the advanced lipid biomarker, gently clarify that Vital8 uses Lp(a), lipoprotein little-a, not the "
-    "supplement alpha-lipoic acid. Keep answers concise, practical, and grounded. "
-    "Structure most answers as: what this means, what to work on first, and what to discuss with a clinician."
+    "and Lp(a). Interpret systems rather than dumping raw data. Identify the highest-yield general prevention "
+    "priority: the factor where the smallest realistic intervention could create the largest biological return. "
+    "When useful, use this phrasing: 'The highest-yield action right now is...' "
+    "You may discuss population-level evidence that higher LE8 and higher cardiorespiratory fitness are associated "
+    "with longer life and more disease-free years, but do not estimate the user's personal life expectancy or promise "
+    "a specific number of life years gained. Do not diagnose, treat, provide emergency triage, or recommend medication "
+    "starts/stops/dose changes. Do not replace medical care. Do not claim Vital8 or its advanced layers are validated "
+    "clinical risk calculators. If a user says alpha-lipoic acid while asking about the advanced lipid biomarker, "
+    "gently clarify that Vital8 uses Lp(a), lipoprotein little-a, not the supplement alpha-lipoic acid. "
+    "Keep most answers compact. Prefer short headers such as 'Current read', 'Why it matters', and 'Next move'. "
+    "End with one practical follow-up question only when it would materially improve the next answer."
 )
 
 
@@ -181,7 +185,7 @@ def _ensure_chat_messages() -> None:
         st.session_state.vital8_chat_messages = [
             {
                 "role": "assistant",
-                "content": "Hi, I'm Vital8 AI. I can explain your score, LE8 domains, VO2max, biomarkers, and general prevention priorities. I cannot diagnose symptoms, triage emergencies, or advise medication changes.",
+                "content": "Hi, I'm Vital8 AI. Ask me what your score means, where the biggest leverage is, or how VO2max and biomarkers change the interpretation. I keep this educational and practical, not diagnostic.",
             }
         ]
 
@@ -235,10 +239,13 @@ def render_chatbot(score_summary: dict[str, Any] | None) -> None:
                     "AI chat is not configured yet. Add OPENAI_API_KEY in Streamlit secrets or as a local environment variable to enable it."
                 )
 
+            with st.container(height=360, border=False):
+                _render_chat_messages(limit=8)
+
             with st.form("vital8_ai_sidebar_form", clear_on_submit=True):
                 user_message = st.text_area(
                     "Ask while you fill this out",
-                    placeholder="Example: What should I focus on first?",
+                    placeholder="Example: What is my highest-yield next move?",
                     height=90,
                     key="vital8_ai_sidebar_prompt",
                 )
@@ -247,8 +254,7 @@ def render_chatbot(score_summary: dict[str, Any] | None) -> None:
             if submitted:
                 with st.spinner("Thinking..."):
                     _answer_user_message(score_summary, user_message)
-
-            _render_chat_messages(limit=6)
+                st.rerun()
 
             if st.button("Clear chat", key="clear_vital8_chat", use_container_width=True):
                 del st.session_state.vital8_chat_messages
