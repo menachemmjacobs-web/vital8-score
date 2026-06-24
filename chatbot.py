@@ -26,6 +26,7 @@ DEFAULT_AI_MODEL = "gpt-5.5"
 FALLBACK_MODELS = ["gpt-5.4", "gpt-5.4-mini"]
 MAX_OUTPUT_TOKENS = 700
 ICON_PATH = Path("assets/vital8-favicon.png")
+CHAT_UI_VERSION = "2026-06-24-leverage-tone-output-first"
 
 SYSTEM_PROMPT = (
     "You are Vital8 AI, a science-based preventive cardiology coach for an educational Life's Essential 8 "
@@ -181,7 +182,15 @@ def _openai_error_message(error: Exception) -> str:
 
 
 def _ensure_chat_messages() -> None:
-    if "vital8_chat_messages" not in st.session_state:
+    if st.session_state.get("vital8_chat_ui_version") != CHAT_UI_VERSION:
+        st.session_state.vital8_chat_messages = [
+            {
+                "role": "assistant",
+                "content": "Hi, I'm Vital8 AI. Ask me what your score means, where the biggest leverage is, or how VO2max and biomarkers change the interpretation. I keep this educational and practical, not diagnostic.",
+            }
+        ]
+        st.session_state.vital8_chat_ui_version = CHAT_UI_VERSION
+    elif "vital8_chat_messages" not in st.session_state:
         st.session_state.vital8_chat_messages = [
             {
                 "role": "assistant",
