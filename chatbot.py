@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import json
 import os
+from pathlib import Path
 from typing import Any
 
 import streamlit as st
+from PIL import Image
 
 from content_library import (
     ADVANCED_INTERPRETATION_GUIDE,
@@ -23,6 +25,7 @@ from guardrails import detect_red_flags
 DEFAULT_AI_MODEL = "gpt-5.5"
 FALLBACK_MODELS = ["gpt-5.4", "gpt-5.4-mini"]
 MAX_OUTPUT_TOKENS = 700
+ICON_PATH = Path("assets/vital8-favicon.png")
 
 SYSTEM_PROMPT = (
     "You are Vital8 AI, a science-based preventive cardiology coach for an educational Life's Essential 8 "
@@ -211,7 +214,8 @@ def _render_chat_messages(limit: int | None = None) -> None:
     if limit and len(messages) > limit:
         st.caption(f"Showing the most recent {limit} messages.")
     for message in shown_messages:
-        with st.chat_message(message["role"]):
+        avatar = Image.open(ICON_PATH) if message["role"] == "assistant" and ICON_PATH.exists() else None
+        with st.chat_message(message["role"], avatar=avatar):
             st.write(message["content"])
 
 
@@ -219,7 +223,7 @@ def render_chatbot(score_summary: dict[str, Any] | None) -> None:
     _ensure_chat_messages()
     api_key = _api_key()
     with st.container(key="vital8_ai_floating"):
-        with st.popover("Ask Vital8 AI", icon=":material/forum:", use_container_width=True):
+        with st.popover("Ask Vital8 AI", use_container_width=True):
             st.subheader("Vital8 AI")
             st.caption(
                 "Ask about your current entries, score, LE8 domains, VO2max, biomarkers, and prevention priorities. "

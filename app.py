@@ -8,6 +8,7 @@ from pathlib import Path
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
+from PIL import Image
 
 from biomarkers import advanced_category, biomarker_next_steps, calculate_biomarker_adjustment, required_raw_le8
 from chatbot import render_chatbot
@@ -44,9 +45,6 @@ LANDING_TITLE = _copy_module.LANDING_TITLE
 WHAT_THIS_MEASURES = _copy_module.WHAT_THIS_MEASURES
 
 
-st.set_page_config(page_title="Vital8 Heart Health Score", page_icon="V8", layout="wide", initial_sidebar_state="collapsed")
-
-
 DOMAIN_ORDER = [
     "Daily fuel",
     "Movement",
@@ -59,8 +57,19 @@ DOMAIN_ORDER = [
 ]
 
 AUTHOR_PHOTO = Path("assets/menachem-jacobs-photo.jpg")
+LOGO_PATH = Path("assets/vital8-logo.png")
+ICON_PATH = Path("assets/vital8-icon.png")
+FAVICON_PATH = Path("assets/vital8-favicon.png")
 AUTHOR_EMAIL = "menachem.m.jacobs@gmail.com"
 AUTHOR_LINKEDIN = "https://www.linkedin.com/in/menachem-jacobs-b35222122/"
+
+
+st.set_page_config(
+    page_title="Vital8 Heart Health Score",
+    page_icon=Image.open(FAVICON_PATH) if FAVICON_PATH.exists() else "V8",
+    layout="wide",
+    initial_sidebar_state="collapsed",
+)
 
 
 DEFAULTS = {
@@ -194,6 +203,12 @@ def inject_css() -> None:
           font-weight: 600;
           letter-spacing: .06em;
           font-size: .94rem;
+        }
+        .brand-logo-img {
+          display: block;
+          height: 34px;
+          width: auto;
+          object-fit: contain;
         }
         .diamond {
           width: 11px;
@@ -596,6 +611,18 @@ def inject_css() -> None:
         }
         .st-key-vital8_ai_floating button {
           box-shadow: 0 14px 40px rgba(17, 36, 58, .22);
+        }
+        .st-key-vital8_ai_floating button::before {
+          content: "";
+          width: 22px;
+          height: 22px;
+          background-image: var(--vital8-ai-icon);
+          background-size: contain;
+          background-repeat: no-repeat;
+          background-position: center;
+          display: inline-block;
+          margin-right: 4px;
+          vertical-align: middle;
         }
         div[data-testid="stPopoverBody"] {
           width: min(420px, calc(100vw - 32px));
@@ -1021,11 +1048,23 @@ def newsletter_url() -> str:
         return "https://vital8.substack.com/"
 
 
+def asset_data_url(path: Path, mime: str | None = None) -> str:
+    if mime is None:
+        suffix = path.suffix.lower()
+        if suffix == ".svg":
+            mime = "image/svg+xml"
+        elif suffix in {".jpg", ".jpeg"}:
+            mime = "image/jpeg"
+        else:
+            mime = "image/png"
+    encoded = base64.b64encode(path.read_bytes()).decode("ascii")
+    return f"data:{mime};base64,{encoded}"
+
+
 def linked_author_photo() -> str:
-    encoded = base64.b64encode(AUTHOR_PHOTO.read_bytes()).decode("ascii")
     return f"""
     <a href="{AUTHOR_LINKEDIN}" target="_blank" rel="noopener noreferrer" aria-label="Menachem Jacobs LinkedIn profile">
-      <img src="data:image/jpeg;base64,{encoded}" alt="Menachem Jacobs" style="width:110px; border-radius:8px; display:block;" />
+      <img src="{asset_data_url(AUTHOR_PHOTO, 'image/jpeg')}" alt="Menachem Jacobs" style="width:110px; border-radius:8px; display:block;" />
     </a>
     """
 
@@ -1098,6 +1137,16 @@ def result_score_card(components: dict, score: int | None, category: str, catego
 
 
 inject_css()
+logo_data_url = asset_data_url(LOGO_PATH) if LOGO_PATH.exists() else ""
+icon_data_url = asset_data_url(ICON_PATH) if ICON_PATH.exists() else ""
+st.markdown(
+    f"""
+    <style>
+      :root {{ --vital8-ai-icon: url("{icon_data_url}"); }}
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
 landing_body = "\n".join(
     f"<p class='muted'>{paragraph}</p>"
@@ -1107,7 +1156,7 @@ landing_body = "\n".join(
 st.markdown(
     f"""
     <header class='brand-bar'>
-      <div class='brand-lockup'><span class='diamond'></span><span>VITAL8</span></div>
+      <div class='brand-lockup'><img class='brand-logo-img' src='{logo_data_url}' alt='Vital8' /></div>
       <nav class='brand-nav'>
         <a href='#how-it-works'>How it works</a>
         <a href='#eight-levers'>The 8 levers</a>
