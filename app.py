@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+import html
 import importlib.util
 from pathlib import Path
 
@@ -377,6 +378,39 @@ def inject_css() -> None:
           border-radius: 999px;
           background: var(--teal);
         }
+        .result-score-card {
+          margin: 8px 0 22px;
+        }
+        .result-score-card .score-card-main {
+          justify-content: flex-start;
+          gap: 26px;
+          align-items: flex-start;
+        }
+        .result-summary {
+          max-width: 620px;
+        }
+        .result-summary h2 {
+          margin: 8px 0 10px;
+          font-size: clamp(1.7rem, 3vw, 2.4rem);
+        }
+        .partial-note {
+          display: inline-flex;
+          margin-top: 12px;
+          color: var(--ink-soft);
+          background: var(--bg);
+          border: 1px solid var(--border);
+          border-radius: 999px;
+          padding: 7px 12px;
+          font-family: 'IBM Plex Mono', monospace;
+          font-size: .72rem;
+          letter-spacing: .02em;
+        }
+        .result-bars {
+          margin-top: 24px;
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 10px 22px;
+        }
         .card {
           border-radius: 14px;
           padding: 22px;
@@ -585,6 +619,12 @@ def inject_css() -> None:
           }
           .score-card-main {
             align-items: flex-start;
+          }
+          .result-score-card .score-card-main {
+            flex-direction: column;
+          }
+          .result-bars {
+            grid-template-columns: 1fr;
           }
           .sample-ring {
             width: 108px;
@@ -988,6 +1028,73 @@ def linked_author_photo() -> str:
       <img src="data:image/jpeg;base64,{encoded}" alt="Menachem Jacobs" style="width:110px; border-radius:8px; display:block;" />
     </a>
     """
+
+
+def score_color(score: int | float | None) -> str:
+    if score is None:
+        return "var(--border)"
+    if score >= 80:
+        return "var(--teal)"
+    if score >= 50:
+        return "var(--amber)"
+    return "var(--red)"
+
+
+def score_soft_color(score: int | float | None) -> str:
+    if score is None:
+        return "var(--bg)"
+    if score >= 80:
+        return "var(--surface-soft)"
+    if score >= 50:
+        return "var(--amber-soft)"
+    return "var(--red-soft)"
+
+
+def score_display_label(score: int | float | None) -> str:
+    if score is None:
+        return "Add more data"
+    if score >= 80:
+        return "High cardiovascular health"
+    if score >= 50:
+        return "Moderate cardiovascular health"
+    return "Low cardiovascular health"
+
+
+def result_score_card(components: dict, score: int | None, category: str, category_copy: str, total: dict) -> str:
+    score_text = "--" if score is None else str(score)
+    ring_value = 0 if score is None else max(0, min(100, score))
+    ring_color = score_color(score)
+    status_color = score_color(score)
+    status_soft = score_soft_color(score)
+    partial = f"Snapshot based on {total['known_count']} of 8 levers." if total["is_partial"] else "Complete score based on all 8 levers."
+    rows = []
+    for domain in DOMAIN_ORDER:
+        result = components[domain]
+        domain_score = result["score"]
+        width = 0 if domain_score is None else max(0, min(100, domain_score))
+        label = html.escape(domain)
+        display = "--" if domain_score is None else str(domain_score)
+        fill = score_color(domain_score)
+        rows.append(
+            f"<div class='sample-bar'><span>{label}</span><div class='sample-track'><div class='sample-fill' style='width:{width}%; background:{fill}'></div></div><span>{display}</span></div>"
+        )
+    return (
+        "<section class='hero-score-card result-score-card'>"
+        "<div class='score-card-top'><span>Your LE8 score</span><span class='sample-badge'>Live result</span></div>"
+        "<div class='score-card-main'>"
+        f"<div class='sample-ring' style='background:conic-gradient({ring_color} 0 {ring_value}%, var(--border-soft) {ring_value}% 100%)'>"
+        "<div class='sample-ring-inner'>"
+        f"<span class='sample-ring-score'>{score_text}</span><span class='sample-ring-denom'>/ 100</span>"
+        "</div></div>"
+        "<div class='result-summary'>"
+        f"<div class='sample-status' style='background:{status_soft}; color:{status_color}'>{html.escape(score_display_label(score))}</div>"
+        f"<h2>{html.escape(category)}</h2>"
+        f"<p class='sample-copy'>{html.escape(category_copy)}</p>"
+        f"<span class='partial-note'>{html.escape(partial)}</span>"
+        "</div></div>"
+        f"<div class='result-bars'>{''.join(rows)}</div>"
+        "</section>"
+    )
 
 
 inject_css()
@@ -1417,21 +1524,10 @@ category, category_copy = category_for_total(result_score)
 top = get_top_opportunities(components, 3)
 strengths = [(name, result) for name, result in components.items() if result["score"] is not None and result["score"] >= 80][:3]
 
-st.header("Your Vital8 LE8 score")
 if total["known_count"] < 5:
     st.warning(f"Enter at least 5 of 8 areas to see a useful LE8 snapshot. You have entered {total['known_count']}.")
 
-c1, c2 = st.columns([1, 1.15])
-with c1:
-    st.plotly_chart(gauge(result_score), width="stretch", config={"displayModeBar": False})
-with c2:
-    st.markdown("<p class='small-label'>Life's Essential 8 snapshot</p>", unsafe_allow_html=True)
-    st.markdown(f"<div class='score-number'>{result_score if result_score is not None else '--'}</div>", unsafe_allow_html=True)
-    partial = f"Snapshot based on {total['known_count']} of 8 areas." if total["is_partial"] else "Complete score based on all 8 areas."
-    st.subheader(category)
-    st.write(category_copy)
-    st.caption("Low is below 50, moderate is 50-79, and high is 80-100. This score is educational and depends on the information you entered.")
-    st.info(partial)
+st.markdown(result_score_card(components, result_score, category, category_copy, total), unsafe_allow_html=True)
 
 st.markdown(f"<div class='disclaimer'>{DISCLAIMER}</div>", unsafe_allow_html=True)
 st.write("")
