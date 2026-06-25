@@ -86,14 +86,14 @@ DEFAULTS = {
     "fish_seafood": None,
     "nuts_legumes": None,
     "sodium_foods": None,
-    "fruit_veg_scale": "Not answered",
-    "whole_grains_scale": "Not answered",
-    "sugary_drinks_scale": "Not answered",
-    "processed_food_scale": "Not answered",
-    "healthy_proteins_scale": "Not answered",
-    "fish_seafood_scale": "Not answered",
-    "nuts_legumes_scale": "Not answered",
-    "sodium_foods_scale": "Not answered",
+    "fruit_veg_scale": 0,
+    "whole_grains_scale": 0,
+    "sugary_drinks_scale": 0,
+    "processed_food_scale": 0,
+    "healthy_proteins_scale": 0,
+    "fish_seafood_scale": 0,
+    "nuts_legumes_scale": 0,
+    "sodium_foods_scale": 0,
     "moderate_minutes": None,
     "vigorous_minutes": None,
     "nicotine_current_use": None,
@@ -773,39 +773,43 @@ def legacy_diet_args() -> tuple[str | None, str, str | None, str | None, str, st
 
 
 DIET_BLANK = "Not answered"
-DIET_SCALE_OPTIONS = [DIET_BLANK, *range(0, 11)]
+DIET_SCALE_OPTIONS = list(range(0, 11))
 
 
-def diet_scale(label: str, key: str, low_label: str, high_label: str, help_text: str | None = None) -> int | None:
+def diet_scale(label: str, key: str, low_label: str, high_label: str, help_text: str | None = None) -> int:
+    if st.session_state.get(key) == DIET_BLANK:
+        st.session_state[key] = 0
     value = st.select_slider(
         label,
         options=DIET_SCALE_OPTIONS,
-        format_func=lambda item: "Not answered" if item == DIET_BLANK else str(item),
         key=key,
         help=help_text,
     )
     st.caption(f"0 = {low_label} | 10 = {high_label}")
-    return None if value == DIET_BLANK else int(value)
+    if value == 0:
+        st.markdown(
+            "<span style='color:#e0414a; font-size:.86rem; font-weight:600;'>Defaulted to 0. Move this if 0 does not reflect your usual pattern.</span>",
+            unsafe_allow_html=True,
+        )
+    return int(value)
 
 
 def sync_diet_scale_answers() -> None:
     fruit = st.session_state.fruit_veg_scale
-    st.session_state.fruit_veg = None if fruit == DIET_BLANK else "0" if fruit == 0 else "1-2" if fruit <= 2 else "3-4" if fruit <= 4 else "5+"
+    st.session_state.fruit_veg = "0" if fruit == 0 else "1-2" if fruit <= 2 else "3-4" if fruit <= 4 else "5+"
 
     grains = st.session_state.whole_grains_scale
-    st.session_state.whole_grains = None if grains == DIET_BLANK else "rarely" if grains <= 2 else "sometimes" if grains <= 5 else "most" if grains <= 8 else "always"
+    st.session_state.whole_grains = "rarely" if grains <= 2 else "sometimes" if grains <= 5 else "most" if grains <= 8 else "always"
 
     drinks = st.session_state.sugary_drinks_scale
-    st.session_state.sugary_drinks = None if drinks == DIET_BLANK else "0" if drinks == 0 else "1-3" if drinks <= 3 else "4-7" if drinks <= 7 else "7+"
+    st.session_state.sugary_drinks = "0" if drinks == 0 else "1-3" if drinks <= 3 else "4-7" if drinks <= 7 else "7+"
 
     processed = st.session_state.processed_food_scale
-    st.session_state.processed_food = None if processed == DIET_BLANK else "0-1" if processed <= 1 else "2-3" if processed <= 3 else "4-6" if processed <= 6 else "7+"
+    st.session_state.processed_food = "0-1" if processed <= 1 else "2-3" if processed <= 3 else "4-6" if processed <= 6 else "7+"
 
     proteins = st.session_state.healthy_proteins_scale
     st.session_state.healthy_proteins = (
-        None
-        if proteins == DIET_BLANK
-        else "red_processed"
+        "red_processed"
         if proteins <= 2
         else "lean_meat"
         if proteins <= 4
@@ -815,13 +819,13 @@ def sync_diet_scale_answers() -> None:
     )
 
     fish = st.session_state.fish_seafood_scale
-    st.session_state.fish_seafood = None if fish == DIET_BLANK else "rarely" if fish <= 2 else "monthly" if fish <= 4 else "1" if fish <= 7 else "2+"
+    st.session_state.fish_seafood = "rarely" if fish <= 2 else "monthly" if fish <= 4 else "1" if fish <= 7 else "2+"
 
     nuts = st.session_state.nuts_legumes_scale
-    st.session_state.nuts_legumes = None if nuts == DIET_BLANK else "rarely" if nuts <= 2 else "weekly" if nuts <= 4 else "few_weekly" if nuts <= 7 else "most_days"
+    st.session_state.nuts_legumes = "rarely" if nuts <= 2 else "weekly" if nuts <= 4 else "few_weekly" if nuts <= 7 else "most_days"
 
     sodium = st.session_state.sodium_foods_scale
-    st.session_state.sodium_foods = None if sodium == DIET_BLANK else "rarely" if sodium <= 2 else "sometimes" if sodium <= 6 else "often"
+    st.session_state.sodium_foods = "rarely" if sodium <= 2 else "sometimes" if sodium <= 6 else "often"
 
 
 def score_diet_with_blank_check() -> dict:
