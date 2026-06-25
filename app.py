@@ -1116,6 +1116,26 @@ def score_display_label(score: int | float | None) -> str:
     return "Low cardiovascular health"
 
 
+def png_score_color(score: int | float | None) -> str:
+    if score is None:
+        return "#dfe5ee"
+    if score >= 80:
+        return "#1f5fd6"
+    if score >= 50:
+        return "#c0851b"
+    return "#e0414a"
+
+
+def png_score_soft_color(score: int | float | None) -> str:
+    if score is None:
+        return "#f3f6fa"
+    if score >= 80:
+        return "#e7efff"
+    if score >= 50:
+        return "#fbf2e0"
+    return "#fdeced"
+
+
 def result_score_card(components: dict, score: int | None, category: str, category_copy: str, total: dict) -> str:
     score_text = "--" if score is None else str(score)
     ring_value = 0 if score is None else max(0, min(100, score))
@@ -1251,11 +1271,6 @@ def scorecard_png_bytes(
     navy = "#0d1520"
     muted = "#667086"
     faint = "#edf1f6"
-    red = "#e0414a"
-    blue = "#1f5fd6"
-    green = "#16a36a"
-    amber = "#c0851b"
-
     image = Image.new("RGB", (width, height), "#f3f6fa")
     draw = ImageDraw.Draw(image)
     draw.rounded_rectangle((34, 34, width - 34, height - 34), radius=34, fill="#ffffff", outline="#dde4ee", width=2)
@@ -1269,7 +1284,7 @@ def scorecard_png_bytes(
     small_font = load_font(24)
 
     score_value = 0 if score is None else max(0, min(100, score))
-    color = score_color(score)
+    color = png_score_color(score)
     draw.text((82, 86), "YOUR LE8 SCORE", font=label_font, fill="#94a0b4")
     draw.rounded_rectangle((1390, 70, 1530, 120), radius=24, fill="#ffffff", outline="#dfe5ee", width=2)
     draw.text((1424, 82), "VITAL8", font=tiny_font, fill="#94a0b4")
@@ -1285,7 +1300,7 @@ def scorecard_png_bytes(
 
     badge_label = score_display_label(score)
     badge_w = draw.textbbox((0, 0), badge_label, font=mono_font)[2] + 50
-    draw.rounded_rectangle((320, 166, 320 + badge_w, 222), radius=28, fill=score_soft_color(score))
+    draw.rounded_rectangle((320, 166, 320 + badge_w, 222), radius=28, fill=png_score_soft_color(score))
     draw.text((344, 180), badge_label, font=mono_font, fill=color)
     draw.text((320, 290), category, font=title_font, fill=navy)
     y = draw_wrapped_text(draw, category_copy, (320, 385), body_font, navy, 1040, 9)
@@ -1301,10 +1316,12 @@ def scorecard_png_bytes(
         y_row = domain_y + (idx % 4) * row_gap
         result = components[domain]
         domain_score = result["score"]
-        domain_color = score_color(domain_score)
+        domain_color = png_score_color(domain_score)
         display = "--" if domain_score is None else str(domain_score)
         fill_width = 0 if domain_score is None else int(420 * max(0, min(100, domain_score)) / 100)
-        draw.text((x, y_row - 9), domain, font=small_font, fill=muted)
+        domain_lines = textwrap.wrap(domain, width=15)
+        for line_index, line in enumerate(domain_lines[:2]):
+            draw.text((x, y_row - 14 + line_index * 26), line, font=small_font, fill=muted)
         draw.rounded_rectangle((x + 180, y_row, x + 600, y_row + 12), radius=6, fill=faint)
         if fill_width:
             draw.rounded_rectangle((x + 180, y_row, x + 180 + fill_width, y_row + 12), radius=6, fill=domain_color)
@@ -1317,7 +1334,7 @@ def scorecard_png_bytes(
     plan_text = textwrap.shorten(plan["behavior"], width=78, placeholder="...")
     draw.text((828, 902), f"Next move: {plan_text}", font=small_font, fill=navy)
 
-    draw.text((82, 960), "Educational only. Not medical advice. vital8-score.streamlit.app", font=load_font(18), fill="#94a0b4")
+    draw.text((82, 930), "Educational only. Not medical advice. vital8-score.streamlit.app", font=load_font(18), fill="#94a0b4")
 
     buffer = io.BytesIO()
     image.save(buffer, format="PNG", optimize=True)
