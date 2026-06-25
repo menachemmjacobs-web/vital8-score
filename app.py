@@ -3,6 +3,7 @@ from __future__ import annotations
 import base64
 import html
 import importlib.util
+import urllib.parse
 from pathlib import Path
 
 import pandas as pd
@@ -1150,6 +1151,47 @@ def result_score_card(components: dict, score: int | None, category: str, catego
     )
 
 
+def share_summary_text(
+    score: int | None,
+    category: str,
+    total: dict,
+    top_opportunities: list[tuple[str, dict]],
+    strengths: list[tuple[str, dict]],
+    plan: dict[str, str],
+) -> str:
+    score_line = (
+        f"My Vital8 LE8 score is {score}/100 ({category})."
+        if score is not None
+        else f"My Vital8 snapshot is not complete yet. I entered {total['known_count']} of 8 areas."
+    )
+    strength_line = (
+        "Strongest areas: " + ", ".join(f"{name} ({result['score']}/100)" for name, result in strengths[:3]) + "."
+        if strengths
+        else "Strongest areas will become clearer once more domains are complete."
+    )
+    lever_line = (
+        "Highest-ROI levers: " + ", ".join(f"{name} ({result['score']}/100)" for name, result in top_opportunities[:3]) + "."
+        if top_opportunities
+        else "Highest-ROI levers will appear once enough domains are entered."
+    )
+    return "\n".join(
+        [
+            "Vital8 Heart Health Score",
+            score_line,
+            strength_line,
+            lever_line,
+            "",
+            "My next 30 days:",
+            f"1. Behavior: {plan['behavior']}",
+            f"2. Measurement: {plan['measurement']}",
+            f"3. Follow-up: {plan['clinician_or_lab']}",
+            "",
+            "Vital8 is educational only and does not replace clinician-guided care.",
+            "Try it: https://vital8-score.streamlit.app/",
+        ]
+    )
+
+
 inject_css()
 logo_data_url = asset_data_url(LOGO_PATH) if LOGO_PATH.exists() else ""
 icon_data_url = asset_data_url(ICON_PATH) if ICON_PATH.exists() else ""
@@ -1619,6 +1661,36 @@ with p2:
     card("Measurement goal", plan["measurement"], class_name="plan-card")
 with p3:
     card("Clinician or lab goal", plan["clinician_or_lab"], class_name="plan-card")
+
+share_text = share_summary_text(result_score, category, total, top, strengths, plan)
+encoded_share_text = urllib.parse.quote(share_text)
+
+st.subheader("Save or share your result")
+st.caption(
+    "Keep a copy for yourself or send it to someone you trust. This creates a plain-language summary of your score, "
+    "highest-ROI levers, and next 30-day steps."
+)
+with st.container(border=True):
+    st.text_area(
+        "Shareable summary",
+        value=share_text,
+        height=220,
+        help="Select and copy this text, or use one of the quick-share buttons below.",
+    )
+    share_col1, share_col2, share_col3 = st.columns(3)
+    with share_col1:
+        st.link_button("Share on WhatsApp", f"https://wa.me/?text={encoded_share_text}", width="stretch")
+    with share_col2:
+        st.link_button("Share by SMS", f"sms:?&body={encoded_share_text}", width="stretch")
+    with share_col3:
+        st.download_button(
+            "Download summary",
+            data=share_text,
+            file_name="vital8-summary.txt",
+            mime="text/plain",
+            width="stretch",
+        )
+    st.caption("Only share health information where you are comfortable with the privacy of that app or conversation.")
 
 st.subheader("Score details")
 st.caption("A visual breakdown is here if you want to see which domains are carrying the score.")

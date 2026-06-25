@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import urllib.parse
 from pathlib import Path
 from typing import Any
 
@@ -244,6 +245,18 @@ def _render_chat_messages(limit: int | None = None) -> None:
             st.write(message["content"])
 
 
+def _recent_chat_text(limit: int = 6) -> str:
+    messages = st.session_state.get("vital8_chat_messages", [])[-limit:]
+    lines = ["Vital8 AI chat notes"]
+    for message in messages:
+        speaker = "Vital8 AI" if message["role"] == "assistant" else "Me"
+        lines.append(f"{speaker}: {message['content']}")
+    lines.append("")
+    lines.append("Educational only. Not medical advice.")
+    lines.append("https://vital8-score.streamlit.app/")
+    return "\n\n".join(lines)
+
+
 def render_chatbot(score_summary: dict[str, Any] | None) -> None:
     _ensure_chat_messages()
     api_key = _api_key()
@@ -276,6 +289,20 @@ def render_chatbot(score_summary: dict[str, Any] | None) -> None:
                 with st.spinner("Thinking..."):
                     _answer_user_message(score_summary, user_message)
                 st.rerun()
+
+            chat_text = _recent_chat_text()
+            encoded_chat_text = urllib.parse.quote(chat_text)
+            share_col1, share_col2 = st.columns(2)
+            with share_col1:
+                st.link_button("Share chat", f"https://wa.me/?text={encoded_chat_text}", use_container_width=True)
+            with share_col2:
+                st.download_button(
+                    "Download chat",
+                    data=chat_text,
+                    file_name="vital8-chat.txt",
+                    mime="text/plain",
+                    use_container_width=True,
+                )
 
             if st.button("Clear chat", key="clear_vital8_chat", use_container_width=True):
                 del st.session_state.vital8_chat_messages
