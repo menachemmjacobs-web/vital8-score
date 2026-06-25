@@ -1813,14 +1813,12 @@ with p3:
 
 share_text = share_summary_text(result_score, category, total, top, strengths, plan)
 encoded_share_text = urllib.parse.quote(share_text)
-scorecard_png = scorecard_png_bytes(components, result_score, category, category_copy, total, top, plan)
 
-st.subheader("Save or share your result")
-st.caption(
-    "Keep a copy for yourself or send it to someone you trust. Start with the image card, then use the text summary "
-    "if you want a copy-paste version."
-)
-with st.container(border=True):
+with st.expander("Save or share your result", expanded=False):
+    st.caption(
+        "Open this when you want a PNG scorecard, WhatsApp/SMS text, or a downloadable summary."
+    )
+    scorecard_png = scorecard_png_bytes(components, result_score, category, category_copy, total, top, plan)
     st.image(scorecard_png, caption="Shareable Vital8 scorecard PNG", width="stretch")
     st.download_button(
         "Download scorecard PNG",
