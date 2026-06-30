@@ -27,7 +27,7 @@ DEFAULT_AI_MODEL = "gpt-5.5"
 FALLBACK_MODELS = ["gpt-5.4", "gpt-5.4-mini"]
 MAX_OUTPUT_TOKENS = 1400
 ICON_PATH = Path("assets/vital8-favicon.png")
-CHAT_UI_VERSION = "2026-06-29-coaching-report"
+CHAT_UI_VERSION = "2026-06-30-coaching-report"
 
 COACHING_REPORT_REQUEST = (
     "Create my baseline Vital8 coaching report from every available result in my current assessment. "
