@@ -2,16 +2,14 @@ from __future__ import annotations
 
 import base64
 import html
-import io
 import importlib.util
-import textwrap
 import urllib.parse
 from pathlib import Path
 
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image
 
 from biomarkers import advanced_category, biomarker_next_steps, calculate_biomarker_adjustment, required_raw_le8
 from chatbot import render_chatbot
@@ -1120,26 +1118,6 @@ def score_display_label(score: int | float | None) -> str:
     return "Low cardiovascular health"
 
 
-def png_score_color(score: int | float | None) -> str:
-    if score is None:
-        return "#dfe5ee"
-    if score >= 80:
-        return "#1f5fd6"
-    if score >= 50:
-        return "#c0851b"
-    return "#e0414a"
-
-
-def png_score_soft_color(score: int | float | None) -> str:
-    if score is None:
-        return "#f3f6fa"
-    if score >= 80:
-        return "#e7efff"
-    if score >= 50:
-        return "#fbf2e0"
-    return "#fdeced"
-
-
 def result_score_card(components: dict, score: int | None, category: str, category_copy: str, total: dict) -> str:
     score_text = "--" if score is None else str(score)
     ring_value = 0 if score is None else max(0, min(100, score))
@@ -1216,158 +1194,6 @@ def share_summary_text(
             "Try it: https://vital8-score.streamlit.app/",
         ]
     )
-
-
-def load_font(size: int, bold: bool = False) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
-    candidates = [
-        "/System/Library/Fonts/Supplemental/Arial Bold.ttf" if bold else "/System/Library/Fonts/Supplemental/Arial.ttf",
-        "/System/Library/Fonts/Supplemental/Helvetica.ttc",
-        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf" if bold else "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-        "/usr/share/fonts/truetype/liberation2/LiberationSans-Bold.ttf" if bold else "/usr/share/fonts/truetype/liberation2/LiberationSans-Regular.ttf",
-    ]
-    for candidate in candidates:
-        try:
-            return ImageFont.truetype(candidate, size)
-        except OSError:
-            continue
-    return ImageFont.load_default()
-
-
-def draw_wrapped_text(
-    draw: ImageDraw.ImageDraw,
-    text: str,
-    xy: tuple[int, int],
-    font: ImageFont.ImageFont,
-    fill: str,
-    max_width: int,
-    line_spacing: int = 8,
-) -> int:
-    x, y = xy
-    words = text.split()
-    lines: list[str] = []
-    current = ""
-    for word in words:
-        candidate = f"{current} {word}".strip()
-        if draw.textbbox((0, 0), candidate, font=font)[2] <= max_width:
-            current = candidate
-        else:
-            if current:
-                lines.append(current)
-            current = word
-    if current:
-        lines.append(current)
-    for line in lines:
-        draw.text((x, y), line, font=font, fill=fill)
-        y += draw.textbbox((0, 0), line, font=font)[3] + line_spacing
-    return y
-
-
-def scorecard_png_bytes(
-    components: dict,
-    score: int | None,
-    category: str,
-    category_copy: str,
-    total: dict,
-    top_opportunities: list[tuple[str, dict]],
-    plan: dict[str, str],
-) -> bytes:
-    width, height = 1200, 760
-    navy = "#0d1520"
-    muted = "#667086"
-    faint = "#edf1f6"
-    image = Image.new("RGB", (width, height), "#f3f6fa")
-    draw = ImageDraw.Draw(image)
-    draw.rounded_rectangle((24, 24, width - 24, height - 24), radius=28, fill="#ffffff", outline="#dde4ee", width=2)
-
-    label_font = load_font(21, bold=True)
-    brand_font = load_font(24, bold=True)
-    title_font = load_font(44, bold=True)
-    body_font = load_font(22)
-    badge_font = load_font(20, bold=True)
-    score_font = load_font(82, bold=True)
-    denominator_font = load_font(18, bold=True)
-    bar_font = load_font(19)
-    footer_font = load_font(17)
-
-    score_value = 0 if score is None else max(0, min(100, score))
-    color = png_score_color(score)
-    draw.text((58, 58), "YOUR LE8 SCORE", font=label_font, fill="#94a0b4")
-    brand_bbox = draw.textbbox((0, 0), "VITAL8", font=brand_font)
-    draw.text((width - 58 - (brand_bbox[2] - brand_bbox[0]), 56), "VITAL8", font=brand_font, fill="#94a0b4")
-
-    cx, cy, radius = 150, 220, 92
-    ring_width = 28
-    draw.ellipse((cx - radius, cy - radius, cx + radius, cy + radius), outline=faint, width=ring_width)
-    if score_value:
-        draw.arc(
-            (cx - radius, cy - radius, cx + radius, cy + radius),
-            -90,
-            -90 + int(360 * score_value / 100),
-            fill=color,
-            width=ring_width,
-        )
-    draw.ellipse(
-        (cx - radius + ring_width, cy - radius + ring_width, cx + radius - ring_width, cy + radius - ring_width),
-        fill="#ffffff",
-    )
-    score_text = "--" if score is None else str(score)
-    score_bbox = draw.textbbox((0, 0), score_text, font=score_font)
-    score_x = cx - (score_bbox[2] - score_bbox[0]) / 2 - score_bbox[0]
-    score_y = cy - (score_bbox[3] - score_bbox[1]) / 2 - score_bbox[1] - 12
-    draw.text((score_x, score_y), score_text, font=score_font, fill=navy)
-    denominator = "/ 100"
-    denominator_bbox = draw.textbbox((0, 0), denominator, font=denominator_font)
-    draw.text(
-        (cx - (denominator_bbox[2] - denominator_bbox[0]) / 2, cy + 38),
-        denominator,
-        font=denominator_font,
-        fill="#94a0b4",
-    )
-
-    badge_label = score_display_label(score)
-    badge_w = draw.textbbox((0, 0), badge_label, font=badge_font)[2] + 38
-    draw.rounded_rectangle((290, 128, 290 + badge_w, 174), radius=23, fill=png_score_soft_color(score))
-    draw.text((309, 140), badge_label, font=badge_font, fill=color)
-    draw.text((290, 204), category, font=title_font, fill=navy)
-    y = draw_wrapped_text(draw, category_copy, (290, 276), body_font, navy, 830, 7)
-    partial = f"Snapshot based on {total['known_count']} of 8 levers." if total["is_partial"] else "Complete score based on all 8 levers."
-    partial_w = draw.textbbox((0, 0), partial, font=footer_font)[2] + 36
-    draw.rounded_rectangle((290, y + 18, 290 + partial_w, y + 58), radius=20, fill="#f0f4f9", outline="#e0e7f0")
-    draw.text((308, y + 28), partial, font=footer_font, fill=muted)
-
-    domain_y = 470
-    col_x = [58, 620]
-    row_gap = 52
-    for idx, domain in enumerate(DOMAIN_ORDER):
-        x = col_x[idx // 4]
-        y_row = domain_y + (idx % 4) * row_gap
-        result = components[domain]
-        domain_score = result["score"]
-        domain_color = png_score_color(domain_score)
-        display = "--" if domain_score is None else str(domain_score)
-        track_x = x + 175
-        track_width = 300
-        fill_width = 0 if domain_score is None else int(track_width * max(0, min(100, domain_score)) / 100)
-        domain_lines = textwrap.wrap(domain, width=18)
-        for line_index, line in enumerate(domain_lines[:2]):
-            draw.text((x, y_row - 10 + line_index * 21), line, font=bar_font, fill=muted)
-        draw.rounded_rectangle((track_x, y_row, track_x + track_width, y_row + 12), radius=6, fill=faint)
-        if fill_width:
-            draw.rounded_rectangle((track_x, y_row, track_x + fill_width, y_row + 12), radius=6, fill=domain_color)
-        draw.text((track_x + track_width + 16, y_row - 8), display, font=bar_font, fill=muted)
-
-    roi = ", ".join(name for name, _ in top_opportunities[:3]) if top_opportunities else "complete more domains"
-    roi_text = textwrap.shorten(roi, width=48, placeholder="...")
-    plan_text = textwrap.shorten(plan["behavior"], width=55, placeholder="...")
-    draw.text((58, 654), "Educational only · vital8-score.streamlit.app", font=load_font(14), fill="#94a0b4")
-    draw.rounded_rectangle((58, 680, 584, 718), radius=16, fill="#f4f7fb", outline="#e2e8f0")
-    draw.text((76, 690), f"Highest ROI: {roi_text}", font=footer_font, fill=navy)
-    draw.rounded_rectangle((606, 680, 1142, 718), radius=16, fill="#f4f7fb", outline="#e2e8f0")
-    draw.text((624, 690), f"Next move: {plan_text}", font=footer_font, fill=navy)
-
-    buffer = io.BytesIO()
-    image.save(buffer, format="PNG", optimize=True)
-    return buffer.getvalue()
 
 
 inject_css()
@@ -1844,20 +1670,7 @@ share_text = share_summary_text(result_score, category, total, top, strengths, p
 encoded_share_text = urllib.parse.quote(share_text)
 
 with st.expander("Save or share your result", expanded=False):
-    st.caption(
-        "Download your score card as an image, or share the concise text summary."
-    )
-    scorecard_png = scorecard_png_bytes(components, result_score, category, category_copy, total, top, plan)
-    st.image(scorecard_png, caption="Your shareable Vital8 score card", width=800)
-    st.download_button(
-        "Download score card image",
-        data=scorecard_png,
-        file_name="vital8-scorecard.png",
-        mime="image/png",
-        width="stretch",
-    )
-    st.caption("Download the image, then attach it to WhatsApp, Messages, email, or a social post like any photo.")
-    st.divider()
+    st.caption("Copy or send this concise summary of your score and next steps.")
     st.text_area(
         "Shareable summary",
         value=share_text,
