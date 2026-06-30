@@ -25,9 +25,19 @@ from guardrails import detect_red_flags
 # Current high-quality default: GPT-5.5. Fallbacks keep the app usable if a project lacks model access.
 DEFAULT_AI_MODEL = "gpt-5.5"
 FALLBACK_MODELS = ["gpt-5.4", "gpt-5.4-mini"]
-MAX_OUTPUT_TOKENS = 900
+MAX_OUTPUT_TOKENS = 1400
 ICON_PATH = Path("assets/vital8-favicon.png")
-CHAT_UI_VERSION = "2026-06-24-roi-smart-goals"
+CHAT_UI_VERSION = "2026-06-29-coaching-report"
+
+COACHING_REPORT_REQUEST = (
+    "Create my baseline Vital8 coaching report from every available result in my current assessment. "
+    "Interpret my overall LE8 score, completion level, strongest domains, highest-ROI opportunities, and any "
+    "enabled VO2max or biomarker lenses. Briefly explain why improving or maintaining this score matters using "
+    "the most relevant quantified population-level evidence. Clearly distinguish measured results from missing "
+    "data and conceptual advanced layers. Then identify the single highest-yield action and give me exactly three "
+    "practical SMART goals for the next 7 to 30 days. End with one short question that helps tailor the plan to my "
+    "real life. This report should become the baseline for our follow-up conversation."
+)
 
 SYSTEM_PROMPT = (
     "You are Vital8 AI, a science-based preventive cardiology coach for an educational Life's Essential 8 "
@@ -54,6 +64,11 @@ SYSTEM_PROMPT = (
     "clinical risk calculators. If a user says alpha-lipoic acid while asking about the advanced lipid biomarker, "
     "gently clarify that Vital8 uses Lp(a), lipoprotein little-a, not the supplement alpha-lipoic acid. "
     "Keep most answers compact. Prefer short headers such as 'Current read', 'Why it matters', and 'Next move'. "
+    "When the user requests a baseline coaching report, synthesize every available part of the current assessment. "
+    "Use this compact order: 'Current read', 'Why it matters', 'Highest ROI', 'What to track', and '3 SMART goals'. "
+    "Name meaningful strengths, interpret all available LE8 domains, include enabled VO2max and biomarker lenses, "
+    "and clearly identify missing inputs. Treat the resulting report as the baseline for later questions and revise "
+    "it conversationally when the user adds preferences, constraints, or new data. "
     "For substantive answers about scores, priorities, or what to do next, end with a section titled '3 SMART goals'. "
     "Create exactly three SMART goals: specific, measurable, achievable, relevant, and time-bound. Each goal should "
     "be practical for the next 7 to 30 days and tied to the user's highest-ROI levers. After the SMART goals, ask one "
@@ -122,26 +137,44 @@ def _response_text(response: Any) -> str:
         return "I could not generate a response right now. Please try again in a moment."
 
 
-def _call_openai(api_key: str, score_summary: dict[str, Any] | None, user_message: str) -> str:
+def _call_openai(
+    api_key: str,
+    score_summary: dict[str, Any] | None,
+    user_message: str,
+    chat_history: list[dict[str, str]] | None = None,
+) -> str:
     from openai import OpenAI
 
     client = OpenAI(api_key=api_key)
-    user_payload = (
-        "Use this compact Vital8 context and answer the user's latest question only.\n"
-        f"Context JSON: {_compact_context(score_summary)}\n"
-        f"User question: {user_message}"
-    )
+    conversation = [
+        {"role": item["role"], "content": item["content"]}
+        for item in (chat_history or [])[-8:]
+        if item.get("role") in {"user", "assistant"} and item.get("content")
+    ]
+    input_messages = [
+        {"role": "system", "content": SYSTEM_PROMPT},
+        {
+            "role": "system",
+            "content": (
+                "Current Vital8 assessment context follows. Use it throughout this conversation, while treating "
+                "the user's later preferences and constraints as additions rather than replacements.\n"
+                f"Context JSON: {_compact_context(score_summary)}"
+            ),
+        },
+        *conversation,
+        {"role": "user", "content": user_message},
+    ]
     last_error: Exception | None = None
     model_candidates = [_model_name()] + [model for model in _model_fallbacks() if model != _model_name()]
     for model in model_candidates:
         try:
-            response = _create_response(client, model, user_payload, include_reasoning=True)
+            response = _create_response(client, model, input_messages, include_reasoning=True)
             return _response_text(response)
         except Exception as error:
             last_error = error
             if _should_retry_without_reasoning(error):
                 try:
-                    response = _create_response(client, model, user_payload, include_reasoning=False)
+                    response = _create_response(client, model, input_messages, include_reasoning=False)
                     return _response_text(response)
                 except Exception as retry_error:
                     last_error = retry_error
@@ -153,13 +186,10 @@ def _call_openai(api_key: str, score_summary: dict[str, Any] | None, user_messag
     return "I could not generate a response right now. Please try again in a moment."
 
 
-def _create_response(client: Any, model: str, user_payload: str, include_reasoning: bool) -> Any:
+def _create_response(client: Any, model: str, input_messages: list[dict[str, str]], include_reasoning: bool) -> Any:
     request: dict[str, Any] = {
         "model": model,
-        "input": [
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": user_payload},
-        ],
+        "input": input_messages,
         "max_output_tokens": MAX_OUTPUT_TOKENS,
     }
     if include_reasoning:
@@ -199,7 +229,7 @@ def _ensure_chat_messages() -> None:
         st.session_state.vital8_chat_messages = [
             {
                 "role": "assistant",
-                "content": "Hi, I'm Vital8 AI. Ask me what your score means, where the highest-ROI leverage is, or how VO2max and biomarkers change the interpretation. I can help turn the result into three practical SMART goals.",
+                "content": "Hi, I'm Vital8 AI. Once your score is ready, I can turn it into a baseline coaching report with your highest-ROI priorities and three practical SMART goals. After that, we can refine the plan together.",
             }
         ]
         st.session_state.vital8_chat_ui_version = CHAT_UI_VERSION
@@ -207,18 +237,24 @@ def _ensure_chat_messages() -> None:
         st.session_state.vital8_chat_messages = [
             {
                 "role": "assistant",
-                "content": "Hi, I'm Vital8 AI. Ask me what your score means, where the highest-ROI leverage is, or how VO2max and biomarkers change the interpretation. I can help turn the result into three practical SMART goals.",
+                "content": "Hi, I'm Vital8 AI. Once your score is ready, I can turn it into a baseline coaching report with your highest-ROI priorities and three practical SMART goals. After that, we can refine the plan together.",
             }
         ]
 
 
-def _answer_user_message(score_summary: dict[str, Any] | None, user_message: str) -> None:
+def _answer_user_message(
+    score_summary: dict[str, Any] | None,
+    user_message: str,
+    display_message: str | None = None,
+) -> None:
     api_key = _api_key()
     cleaned_message = user_message.strip()
     if not cleaned_message:
         return
 
-    st.session_state.vital8_chat_messages.append({"role": "user", "content": cleaned_message})
+    st.session_state.vital8_chat_messages.append(
+        {"role": "user", "content": (display_message or cleaned_message).strip()}
+    )
 
     guardrail = detect_red_flags(cleaned_message)
     if guardrail["blocked"]:
@@ -227,7 +263,8 @@ def _answer_user_message(score_summary: dict[str, Any] | None, user_message: str
         assistant_text = "AI chat is not configured yet. Add an OpenAI API key to enable responses."
     else:
         try:
-            assistant_text = _call_openai(api_key, score_summary, cleaned_message)
+            chat_history = st.session_state.vital8_chat_messages[:-1]
+            assistant_text = _call_openai(api_key, score_summary, cleaned_message, chat_history)
         except Exception as error:
             assistant_text = _openai_error_message(error)
 
@@ -273,13 +310,33 @@ def render_chatbot(score_summary: dict[str, Any] | None) -> None:
                     "AI chat is not configured yet. Add OPENAI_API_KEY in Streamlit secrets or as a local environment variable to enable it."
                 )
 
+            score_ready = (score_summary or {}).get("composite_score") is not None
+            if score_ready:
+                st.success("Your score is ready. Start with a complete coaching report, then ask follow-up questions.")
+                if st.button(
+                    "Create my coaching report",
+                    key="create_vital8_coaching_report",
+                    type="primary",
+                    disabled=not bool(api_key),
+                    use_container_width=True,
+                ):
+                    with st.spinner("Building your coaching report..."):
+                        _answer_user_message(
+                            score_summary,
+                            COACHING_REPORT_REQUEST,
+                            display_message="Build my Vital8 coaching report.",
+                        )
+                    st.rerun()
+            else:
+                st.caption("Complete enough of the assessment to calculate a score, then I can build your coaching report.")
+
             with st.container(height=360, border=False):
                 _render_chat_messages(limit=8)
 
             with st.form("vital8_ai_sidebar_form", clear_on_submit=True):
                 user_message = st.text_area(
-                    "Ask while you fill this out",
-                    placeholder="Example: What are my highest-ROI next steps?",
+                    "Continue the conversation",
+                    placeholder="Example: Which goal should I start with?",
                     height=90,
                     key="vital8_ai_sidebar_prompt",
                 )
