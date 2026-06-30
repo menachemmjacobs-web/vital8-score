@@ -1271,50 +1271,73 @@ def scorecard_png_bytes(
     top_opportunities: list[tuple[str, dict]],
     plan: dict[str, str],
 ) -> bytes:
-    width, height = 1600, 1000
+    width, height = 1200, 760
     navy = "#0d1520"
     muted = "#667086"
     faint = "#edf1f6"
     image = Image.new("RGB", (width, height), "#f3f6fa")
     draw = ImageDraw.Draw(image)
-    draw.rounded_rectangle((34, 34, width - 34, height - 34), radius=34, fill="#ffffff", outline="#dde4ee", width=2)
+    draw.rounded_rectangle((24, 24, width - 24, height - 24), radius=28, fill="#ffffff", outline="#dde4ee", width=2)
 
-    label_font = load_font(30, bold=True)
-    tiny_font = load_font(24, bold=True)
-    title_font = load_font(66, bold=True)
-    body_font = load_font(30)
-    mono_font = load_font(28, bold=True)
-    score_font = load_font(92, bold=True)
-    small_font = load_font(24)
+    label_font = load_font(21, bold=True)
+    brand_font = load_font(24, bold=True)
+    title_font = load_font(44, bold=True)
+    body_font = load_font(22)
+    badge_font = load_font(20, bold=True)
+    score_font = load_font(82, bold=True)
+    denominator_font = load_font(18, bold=True)
+    bar_font = load_font(19)
+    footer_font = load_font(17)
 
     score_value = 0 if score is None else max(0, min(100, score))
     color = png_score_color(score)
-    draw.text((82, 86), "YOUR LE8 SCORE", font=label_font, fill="#94a0b4")
-    draw.rounded_rectangle((1390, 70, 1530, 120), radius=24, fill="#ffffff", outline="#dfe5ee", width=2)
-    draw.text((1424, 82), "VITAL8", font=tiny_font, fill="#94a0b4")
+    draw.text((58, 58), "YOUR LE8 SCORE", font=label_font, fill="#94a0b4")
+    brand_bbox = draw.textbbox((0, 0), "VITAL8", font=brand_font)
+    draw.text((width - 58 - (brand_bbox[2] - brand_bbox[0]), 56), "VITAL8", font=brand_font, fill="#94a0b4")
 
-    cx, cy, radius = 180, 260, 100
-    draw.ellipse((cx - radius, cy - radius, cx + radius, cy + radius), outline=faint, width=34)
-    draw.arc((cx - radius, cy - radius, cx + radius, cy + radius), -90, -90 + int(360 * score_value / 100), fill=color, width=34)
-    draw.ellipse((cx - 64, cy - 64, cx + 64, cy + 64), fill="#ffffff")
+    cx, cy, radius = 150, 220, 92
+    ring_width = 28
+    draw.ellipse((cx - radius, cy - radius, cx + radius, cy + radius), outline=faint, width=ring_width)
+    if score_value:
+        draw.arc(
+            (cx - radius, cy - radius, cx + radius, cy + radius),
+            -90,
+            -90 + int(360 * score_value / 100),
+            fill=color,
+            width=ring_width,
+        )
+    draw.ellipse(
+        (cx - radius + ring_width, cy - radius + ring_width, cx + radius - ring_width, cy + radius - ring_width),
+        fill="#ffffff",
+    )
     score_text = "--" if score is None else str(score)
     score_bbox = draw.textbbox((0, 0), score_text, font=score_font)
-    draw.text((cx - (score_bbox[2] - score_bbox[0]) / 2, cy - 70), score_text, font=score_font, fill=navy)
-    draw.text((cx - 30, cy + 45), "/ 100", font=small_font, fill="#94a0b4")
+    score_x = cx - (score_bbox[2] - score_bbox[0]) / 2 - score_bbox[0]
+    score_y = cy - (score_bbox[3] - score_bbox[1]) / 2 - score_bbox[1] - 12
+    draw.text((score_x, score_y), score_text, font=score_font, fill=navy)
+    denominator = "/ 100"
+    denominator_bbox = draw.textbbox((0, 0), denominator, font=denominator_font)
+    draw.text(
+        (cx - (denominator_bbox[2] - denominator_bbox[0]) / 2, cy + 38),
+        denominator,
+        font=denominator_font,
+        fill="#94a0b4",
+    )
 
     badge_label = score_display_label(score)
-    badge_w = draw.textbbox((0, 0), badge_label, font=mono_font)[2] + 50
-    draw.rounded_rectangle((320, 166, 320 + badge_w, 222), radius=28, fill=png_score_soft_color(score))
-    draw.text((344, 180), badge_label, font=mono_font, fill=color)
-    draw.text((320, 290), category, font=title_font, fill=navy)
-    y = draw_wrapped_text(draw, category_copy, (320, 385), body_font, navy, 1040, 9)
+    badge_w = draw.textbbox((0, 0), badge_label, font=badge_font)[2] + 38
+    draw.rounded_rectangle((290, 128, 290 + badge_w, 174), radius=23, fill=png_score_soft_color(score))
+    draw.text((309, 140), badge_label, font=badge_font, fill=color)
+    draw.text((290, 204), category, font=title_font, fill=navy)
+    y = draw_wrapped_text(draw, category_copy, (290, 276), body_font, navy, 830, 7)
     partial = f"Snapshot based on {total['known_count']} of 8 levers." if total["is_partial"] else "Complete score based on all 8 levers."
-    draw.rounded_rectangle((320, y + 24, 320 + 460, y + 82), radius=28, fill="#f0f4f9", outline="#e0e7f0")
-    draw.text((344, y + 38), partial, font=mono_font, fill=muted)
+    partial_w = draw.textbbox((0, 0), partial, font=footer_font)[2] + 36
+    draw.rounded_rectangle((290, y + 18, 290 + partial_w, y + 58), radius=20, fill="#f0f4f9", outline="#e0e7f0")
+    draw.text((308, y + 28), partial, font=footer_font, fill=muted)
 
-    domain_y = 610
-    col_x = [82, 820]
-    row_gap = 68
+    domain_y = 470
+    col_x = [58, 620]
+    row_gap = 52
     for idx, domain in enumerate(DOMAIN_ORDER):
         x = col_x[idx // 4]
         y_row = domain_y + (idx % 4) * row_gap
@@ -1322,23 +1345,25 @@ def scorecard_png_bytes(
         domain_score = result["score"]
         domain_color = png_score_color(domain_score)
         display = "--" if domain_score is None else str(domain_score)
-        fill_width = 0 if domain_score is None else int(420 * max(0, min(100, domain_score)) / 100)
-        domain_lines = textwrap.wrap(domain, width=15)
+        track_x = x + 175
+        track_width = 300
+        fill_width = 0 if domain_score is None else int(track_width * max(0, min(100, domain_score)) / 100)
+        domain_lines = textwrap.wrap(domain, width=18)
         for line_index, line in enumerate(domain_lines[:2]):
-            draw.text((x, y_row - 14 + line_index * 26), line, font=small_font, fill=muted)
-        draw.rounded_rectangle((x + 180, y_row, x + 600, y_row + 12), radius=6, fill=faint)
+            draw.text((x, y_row - 10 + line_index * 21), line, font=bar_font, fill=muted)
+        draw.rounded_rectangle((track_x, y_row, track_x + track_width, y_row + 12), radius=6, fill=faint)
         if fill_width:
-            draw.rounded_rectangle((x + 180, y_row, x + 180 + fill_width, y_row + 12), radius=6, fill=domain_color)
-        draw.text((x + 620, y_row - 11), display, font=small_font, fill=muted)
+            draw.rounded_rectangle((track_x, y_row, track_x + fill_width, y_row + 12), radius=6, fill=domain_color)
+        draw.text((track_x + track_width + 16, y_row - 8), display, font=bar_font, fill=muted)
 
     roi = ", ".join(name for name, _ in top_opportunities[:3]) if top_opportunities else "complete more domains"
-    draw.rounded_rectangle((82, 885, 760, 942), radius=18, fill="#f4f7fb", outline="#e2e8f0")
-    draw.text((110, 902), f"Highest-ROI levers: {roi}", font=small_font, fill=navy)
-    draw.rounded_rectangle((800, 885, 1518, 942), radius=18, fill="#f4f7fb", outline="#e2e8f0")
-    plan_text = textwrap.shorten(plan["behavior"], width=78, placeholder="...")
-    draw.text((828, 902), f"Next move: {plan_text}", font=small_font, fill=navy)
-
-    draw.text((82, 930), "Educational only. Not medical advice. vital8-score.streamlit.app", font=load_font(18), fill="#94a0b4")
+    roi_text = textwrap.shorten(roi, width=48, placeholder="...")
+    plan_text = textwrap.shorten(plan["behavior"], width=55, placeholder="...")
+    draw.text((58, 654), "Educational only · vital8-score.streamlit.app", font=load_font(14), fill="#94a0b4")
+    draw.rounded_rectangle((58, 680, 584, 718), radius=16, fill="#f4f7fb", outline="#e2e8f0")
+    draw.text((76, 690), f"Highest ROI: {roi_text}", font=footer_font, fill=navy)
+    draw.rounded_rectangle((606, 680, 1142, 718), radius=16, fill="#f4f7fb", outline="#e2e8f0")
+    draw.text((624, 690), f"Next move: {plan_text}", font=footer_font, fill=navy)
 
     buffer = io.BytesIO()
     image.save(buffer, format="PNG", optimize=True)
@@ -1820,18 +1845,18 @@ encoded_share_text = urllib.parse.quote(share_text)
 
 with st.expander("Save or share your result", expanded=False):
     st.caption(
-        "Open this when you want a PNG scorecard, WhatsApp/SMS text, or a downloadable summary."
+        "Download your score card as an image, or share the concise text summary."
     )
     scorecard_png = scorecard_png_bytes(components, result_score, category, category_copy, total, top, plan)
-    st.image(scorecard_png, caption="Shareable Vital8 scorecard PNG", width="stretch")
+    st.image(scorecard_png, caption="Your shareable Vital8 score card", width=800)
     st.download_button(
-        "Download scorecard PNG",
+        "Download score card image",
         data=scorecard_png,
         file_name="vital8-scorecard.png",
         mime="image/png",
         width="stretch",
     )
-    st.caption("For WhatsApp or text threads, download the PNG first, then attach it like any photo.")
+    st.caption("Download the image, then attach it to WhatsApp, Messages, email, or a social post like any photo.")
     st.divider()
     st.text_area(
         "Shareable summary",
